@@ -1,0 +1,35 @@
+@media print {
+  * {
+    display: none;
+  }
+  .table-view-list {
+    display: block;
+  }
+  .table-view-list .row-actions, 
+  .table-view-list .check-column,
+  #the-list .column-primary .hidden{
+	display: none !important;
+  }
+}
+
+.bulkactions {
+	display: flex;
+}
+.ac-table-actions .print.ac-table-button a,
+.bulkactions .print.ac-table-button a{
+	background: #e14d43;
+	color: white;
+	padding: 2px 30px;
+	border-color: #e14d43;
+	display: inline-block;
+	cursor: pointer;
+	border: 1px solid #e14d43;
+	text-decoration: none;
+	font-size: 13px;
+	height: 24px;
+	line-height: 24px;
+	text-align: center;
+	transform: translateX(-1px);
+	border-radius: 3px;
+}
+
