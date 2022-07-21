@@ -1,4 +1,4 @@
-jQuery(function($){
+(function($){
 	
 	// Show loading gif icon when ajax has started
 	$(document).on({
@@ -20,7 +20,7 @@ jQuery(function($){
 	*/
 	var account = $('.searched_account').text();
 	let ajaxurl = "wp-admin/admin-ajax.php";
-	// var editModal = new bootstrap.Modal(document.getElementById('edit_form'));
+	
 	
 	// Pre-fill the Filter fields if fields have values
 	if (account!='') {
@@ -41,7 +41,7 @@ jQuery(function($){
 	
 	/* --------------------------------------------
 	** Save Button for each row
-	* --------------------------------------------- */ 
+				* --------------------------------------------- */ 
 	$(document).on('click','.btn_save', function() {
 		
 		// Check if Transaction Date is filled in, and continue
@@ -268,7 +268,7 @@ jQuery(function($){
 							$('tr.' + uLoanNo + ' input[name="Paid_' + uLoanNo + '"]').prop('checked', false).change(); 
 							$('tr.' + uLoanNo + ' input#Paid' + uPaidRemark + '_' + uLoanNo).prop('checked', true).change(); 
 							
-							$('.infoMsg__transDate').text('There are ' + rowCount + ' rows already saved for this date.');
+							$('.infoMsg__transDate').text('There are ' + rowCount + ' customers paid for this date.');
 							
 							
 							i++;
@@ -296,6 +296,61 @@ jQuery(function($){
 	});
 	
 	
+	/* --------------------------------------------
+	** Auto populate Loan # on new entry
+	* --------------------------------------------- */ 
+	$(document).on('click','.wpDataTableID-3 .new_table_entry',function(e) {
+
+		var loanNoField = $('.modal-dialog #table_1_loan_no');
+		
+		if ( loanNoField.val() == '' ){
+			$.ajax({
+				url: "/lfrlending/wp-content/themes/lfr-lending/read_loans.php",     
+				type: "GET",
+				dataType: 'json',                    
+				success: function(response){                    
+					if (response){
+						var newLoanNo = parseInt(response[0].id) + 1;
+						loanNoField.val( 'L' + newLoanNo );
+						console.log(response[0].id);
+					}
+				},
+				error: function(e){
+					console.log('Error: ' + e);
+				}
+			  
+			});
+		}
+	});
+	
+	/* --------------------------------------------
+	** Auto populate Cust # on new entry
+	* --------------------------------------------- */ 
+	$(document).on('click','.wpDataTableID-2 .new_table_entry',function(e) {
+
+		var custNoField = $('.modal-dialog #table_1_custnum');
+		
+		if ( custNoField.val() == '' ){
+			$.ajax({
+				url: "/lfrlending/wp-content/themes/lfr-lending/read_customers.php",     
+				type: "GET",
+				dataType: 'json',                    
+				success: function(response){                    
+					if (response){
+						var newCustNo = parseInt(response[0].id) + 1;
+						custNoField.val( 'C' + newCustNo );
+						console.log(response[0].id);
+					}
+				},
+				error: function(e){
+					console.log('Error: ' + e);
+				}
+			  
+			});
+		}
+	});
+	
+	
 	/*
 	** Reset the Filter Form field
 	*/
@@ -305,5 +360,81 @@ jQuery(function($){
 		$(this).closest('form').submit();
 	});
 	
-});
+	
+	/*
+	** Loan Details List - Open Slide Out Panel and show all transactions
+	*/
+	const slideOutPanel = $('#slide-out-panel').SlideOutPanel({
+		enableEscapeKey: true,
+		closeBtnSize: '18px',
+		width: '50vw',
+		screenZindex: '9998',
+	});
+	
+	$(document).on('click', '.btn_view_payments', function() {
+	
+		$('.loanDetails_main > table > tbody').html('');
+		$('.message_box').html('');
+		
+		slideOutPanel.open();
+		
+		var loan_no = $(this).attr('data-loan_no');
+		$('.slidePanel_loanNo').text(loan_no);
+		
+		if ( loan_no ){
+			$.ajax({
+				data: {
+					loan_no: loan_no
+				},
+				type: "POST",
+				dataType: 'json',
+				url: "/lfrlending/wp-content/themes/lfr-lending/read_transactions.php",                         
+				success: function(response){    
+					// console.log( response[0] );
+					if (response){
+						var i = 0, rowData='';
+						
+						while (i < response.length) {
+							var transDate = response[i].transaction_date;
+							var desc1 = response[i].description_1;
+							var desc2 = response[i].description_2;
+							var paidRemark = response[i].paid;
+							var amtReceived = response[i].amt_received;
+							
+							rowData += '<tr><td>' + transDate + '</td><td>' + desc1 + '</td><td>' + desc2 + '</td><td>' + paidRemark + '</td><td>' + amtReceived + '</tr>';
+							
+							i++;
+						}
+						
+						$('.loanDetails_main > table > tbody').html(rowData);
+						
+					}
+					else {
+						$('.message_box').html("<br>No payments found or it may have been deleted.");
+					}
+					
+					// Reset values for Amt Received and Paid Remarks for those who are not saved/edited
+					$('.filterResults tr').each(function(){
+						if ( !$(this).hasClass('saved') ){
+							// console.log( $(this).attr('data-loan_no') );
+							var tempAmtRcvd = $(this).find('#amt_received').attr('placeholder');
+							var tempLoanNo = $(this).attr('data-loan_no');
+							
+							$(this).find('#amt_received').val(tempAmtRcvd);
+							$('tr.' + tempLoanNo + ' input#PaidTrue_' + tempLoanNo ).prop('checked', true).change(); 
+						}
+					});
+				}
+			  
+			});
+		}
+		
+		
+	});
+	
+	
+	// Slide Out Panel
+	
+	
+})(jQuery);
 

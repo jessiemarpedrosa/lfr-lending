@@ -6,9 +6,17 @@ include 'db-config.php';
 
 $transDate = $_REQUEST['transDate'];
 $account = $_REQUEST['account'];
+$loanNo = $_REQUEST['loan_no'];
 
-$sql = "SELECT * FROM lfr_transactions WHERE transaction_date = '" . $transDate . "' AND account = '" . $account . "'";
-$result = mysqli_query($conn, $sql);
+if ( isset($loanNo) ){
+	$sql = "SELECT * FROM lfr_transactions WHERE loan_no = '" . $loanNo . "' ORDER BY transaction_date DESC";
+	$result = mysqli_query($conn, $sql);
+}
+else {
+	$sql = "SELECT * FROM lfr_transactions WHERE transaction_date = '" . $transDate . "' AND account = '" . $account . "'";
+	$result = mysqli_query($conn, $sql);
+}
+
 
 while($row = $result->fetch_assoc()) {
     $data[] = $row;

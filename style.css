@@ -11,6 +11,13 @@ Text Domain:	 lfr-lending
 
 
 /*
+   Admin Area
+*/
+#wpadminbar{
+    z-index: 9999;	
+}
+
+/*
     Add your custom styles here
 */
 #primary-menu li.current-menu-item a {
@@ -43,6 +50,9 @@ a.dt-button.new_table_entry.DTTT_button.DTTT_button_new {
 	color: white !important;
 }
 
+h2.wpdt-c{
+	display: none;
+}
 .wpDataTablesFilter .wpDataTableFilterSection label{
 	font-weight: 400 !important;
 	font-size: 14px !important;
@@ -99,7 +109,7 @@ body.logged-in.editor .dt-button.delete_table_entry{
 	height: 100%;
 	top: 0;
 	left: 0;
-	z-index: 999;
+	z-index: 999999;
 	background: rgba(255,255,255,0.8) url("images/spinner.gif") center no-repeat;
 }
 /* Turn off scrollbar when body element has the loading class */
@@ -124,7 +134,7 @@ tr.saved {
 /*
 **  Add Multiple Transactions
 */
-.page-template-add-multiple-transactions #primary.site-main{
+#primary.site-main{
 	width: 100%;	
 }
 .filterActions{
@@ -204,4 +214,31 @@ tr.saved {
 }
 .wpDataTablesWrapper table.wpDataTable tr.selected td {
     background: #009b2178 !important;
+}
+
+.modal-body #table_1_custnum,
+.modal-body #table_1_loan_no {
+	font-weight: bold;
+    pointer-events: none;
+}
+
+
+/*
+**  Loan Details List
+*/
+.loanDetailsList td.Closed,
+.loanDetailsList td.Active{
+	text-transform: uppercase;
+	font-weight: bold;
+	color: green !important;
+}
+.loanDetailsList td.Closed{
+	color: red !important;
+}
+.slide-out-panel-container .slide-out-content .close-slide-out-panel{
+    background: red;
+    opacity: 1;
+    color: white;
+    padding: 10px 10px;	
+	top: 30px;
 }

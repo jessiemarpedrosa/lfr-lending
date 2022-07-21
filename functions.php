@@ -2,13 +2,14 @@
  add_action( 'wp_enqueue_scripts', 'lfr_lending_enqueue_styles' );
  function lfr_lending_enqueue_styles() {
   wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' ); 
+  wp_enqueue_style( 'slide-out-panel', get_stylesheet_directory_uri() . '/css/slide-out-panel.css' ); 
 } 
 	
-/**
- * Enqueue a script in the WordPress admin on edit.php.
- *
- * @param int $hook Hook suffix for the current admin page.
- */
+// /**
+ // * Enqueue a script in the WordPress admin on edit.php.
+ // *
+ // * @param int $hook Hook suffix for the current admin page.
+ // */
 // function custom_script_enqueue_admin_script( $hook ) {
 
 	// wp_enqueue_script( 'jspdf', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', array('jquery'), true );
@@ -18,7 +19,9 @@
 // add_action( 'admin_enqueue_scripts', 'custom_script_enqueue_admin_script' );
 
 function load_my_scripts( $hook ) {
-
+	wp_enqueue_script( 'jspdf', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', array('jquery'), true );
+	wp_enqueue_script( 'jspdf_autotable', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js', array('jquery'), true );
+	wp_enqueue_script( 'slide-out-panel', get_stylesheet_directory_uri() . '/js/slide-out-panel.js', array('jquery'), '1.0', true );
 	wp_enqueue_script( 'my_custom_script', get_stylesheet_directory_uri() . '/js/myscript.js', array('jquery'), '1.0', true );
 }
 add_action( 'wp_enqueue_scripts', 'load_my_scripts' );
