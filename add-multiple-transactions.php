@@ -173,7 +173,7 @@ if(isset($_POST['filter'])){
 									<label for='PaidFalse_" . $row['loan_no'] . "'>FALSE</label></span></td>";
 						echo "<td class='actions'>";
 							echo '<button class="btn_save btn btn-primary" class="mr-3" title="Save Transaction" data-toggle="tooltip">Save</button>';
-							echo "<button class='btn_edit btn btn-success' class='mr-3' title='Edit Transaction'  data-bs-toggle='modal' data-bs-target='#editTransactionModal' data-id='" . $row['id'] . "' data-name='" . $row['fname'] . "'>Edit</button>";
+							echo "<button class='btn_edit btn btn-success' class='mr-3' title='Edit Transaction'  data-bs-toggle='modal' data-bs-target='#editTransactionModal' data-id='' data-name='" . $row['fname'] . "'>Edit</button>";
 							
 							// echo '<button class="edit" data-bs-toggle="modal" data-bs-target="#editTransactionModal">
 									// <i class="material-icons update" data-toggle="tooltip" 

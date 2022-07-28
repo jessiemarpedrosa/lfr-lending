@@ -481,7 +481,8 @@
 					if (response){
 						var i = 0;
 						while (i < response.length) {
-							// console.log(response[i]);
+							console.log(response[i]);
+							var transID = response[i].id;
 							var targetTR = $('tr.' + response[i].loan_no);
 							var amtReceived = response[i].amt_received;
 							var uLoanNo = response[i].loan_no;
@@ -499,6 +500,7 @@
 							targetTR.find('#amt_received').val(response[i].amt_received);
 							$('tr.' + uLoanNo + ' input[name="Paid_' + uLoanNo + '"]').prop('checked', false).change(); 
 							$('tr.' + uLoanNo + ' input#Paid' + uPaidRemark + '_' + uLoanNo).prop('checked', true).change(); 
+							$('tr.' + uLoanNo + ' button.btn_edit').attr('data-id', transID);
 							
 							$('.infoMsg__transDate').text('There are ' + rowCount + ' customers paid for this date.');
 							
