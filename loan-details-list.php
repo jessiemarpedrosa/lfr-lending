@@ -109,8 +109,9 @@ if(isset($_POST['filter'])){
 	" GROUP BY loans.loan_no ORDER BY loans.status, loans.loan_date DESC";
 	
 	if($result = mysqli_query($conn, $sql_get_loans)){
-		
+		$rowNum = 1;
 		$num_rows = mysqli_num_rows($result);
+		
 		echo '<div class="infoMsg">
 			<p style="margin:10px 0 0;" >There are ' . $num_rows . ' record/s found for this search.</p>
 			<p style="margin:10px 0 0;" class="infoMsg__transDate"></p>
@@ -120,6 +121,7 @@ if(isset($_POST['filter'])){
 			echo '<div class="filterResults loanDetailsList"><table class="table table-bordered table-striped">';
 				echo "<thead>";
 					echo "<tr>";
+						echo "<th>#</th>";
 						echo "<th>Customer No.</th>";
 						echo "<th>Account</th>";
 						echo "<th>Route No.</th>";
@@ -139,6 +141,7 @@ if(isset($_POST['filter'])){
 					$desc1 = ($row['balance'] <= 0) ? 'LOAN PAYMENT' : 'UNPAID LOAN';
 					
 					echo "<tr data-test='" . $row['cust_no'] . " " . $row['id'] . "' class='" . $row['loan_no'] . "' data-loan_no='" . $row['loan_no'] . "' data-cust_no='" . $row['cust_no'] . "' >";
+						echo "<td>" . $rowNum . "</td>";
 						echo "<td>" . $row['cust_no'] . "</td>";
 						echo "<td>" . $row['account'] . "</td>";
 						echo "<td>" . $row['route_no'] . "</td>";
@@ -169,6 +172,8 @@ if(isset($_POST['filter'])){
 							echo '<a href="delete.php?id='. $row['id'] .'" title="Delete Record" data-toggle="tooltip"><span class="fa fa-trash"></span></a>';
 						echo "</td>";
 					echo "</tr>";
+					
+					$rowNum++;
 				}
 				echo "</tbody>";                            
 			echo "</table></div>";

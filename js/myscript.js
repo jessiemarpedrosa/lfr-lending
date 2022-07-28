@@ -1,9 +1,23 @@
 (function($){
 	
+	/* --------------------------------------------
+	** Declare Variables and Constants
+	* --------------------------------------------- */ 
+	const slideOutPanel = $('#slide-out-panel').SlideOutPanel({
+		enableEscapeKey: true,
+		closeBtnSize: '18px',
+		width: '50vw',
+		screenZindex: '9998',
+	});
+
+	// Get Account name, and set it to the dropdown as Selected value
+	var account = $('.searched_account').text();
+	
+	
 	// Show loading gif icon when ajax has started
 	$(document).on({
 		ajaxStart: function(){
-			$("body").addClass("loading"); 
+			$("body").not('.page-transactions').addClass("loading"); 
 		},
 		ajaxStop: function(){ 
 			$("body").removeClass("loading"); 
@@ -15,13 +29,6 @@
 		$('#wdt-frontend-modal').modal('hide')
 	});
 	
-	/*
-	**   Get Account name, and set it to the dropdown as Selected value
-	*/
-	var account = $('.searched_account').text();
-	let ajaxurl = "wp-admin/admin-ajax.php";
-	
-	
 	// Pre-fill the Filter fields if fields have values
 	if (account!='') {
 		$('.filterActions__account option[value=' + account + ']').attr('selected', true);
@@ -32,6 +39,8 @@
 	$('.filterActions__custNo input[name="cust_no"]').val( $('.searched_cust_no').text() );
 	
 	
+	 $('body.page-daily-transactions #transaction_date').val(new Date().toJSON().slice(0,10));
+	
 	/* --------------------------------------------
 	** On Change of Account, trigger a click on the Filter button
 	* --------------------------------------------- */ 
@@ -41,7 +50,7 @@
 	
 	/* --------------------------------------------
 	** Save Button for each row
-				* --------------------------------------------- */ 
+	* --------------------------------------------- */ 
 	$(document).on('click','.btn_save', function() {
 		
 		// Check if Transaction Date is filled in, and continue
@@ -235,64 +244,8 @@
 		// Clear all .saved class on all results
 		$('.filterResults tr').removeClass('saved');
 		
-		if ( accountSelect ){
-			$.ajax({
-				data: {
-					transDate: transDate,
-					account: account
-				},
-				type: "POST",
-				dataType: 'json',
-				url: "/lfrlending/wp-content/themes/lfr-lending/read_transactions.php",                         
-				success: function(response){                    
-					// console.log( response[0] );
-					if (response){
-						var i = 0;
-						while (i < response.length) {
-							// console.log(response[i]);
-							var targetTR = $('tr.' + response[i].loan_no);
-							var uLoanNo = response[i].loan_no;
-							var uPaidRemark = response[i].paid;
-							var rowCount = $('.filterResults tr.saved').length;
-							
-							uPaidRemark = uPaidRemark.toLowerCase().replace(/\b[a-z]/g, function(letter) {
-								return letter.toUpperCase();
-							});
-							
-							// console.log( uLoanNo + ' - ' + uPaidRemark );
-							
-							$('tr.' + response[i].loan_no).find('td .btn_save').attr( "disabled", false );
-							// Update the row and fields for the fetched data/values from DB
-							targetTR.addClass('saved');
-							targetTR.find('#amt_received').val(response[i].amt_received);
-							$('tr.' + uLoanNo + ' input[name="Paid_' + uLoanNo + '"]').prop('checked', false).change(); 
-							$('tr.' + uLoanNo + ' input#Paid' + uPaidRemark + '_' + uLoanNo).prop('checked', true).change(); 
-							
-							$('.infoMsg__transDate').text('There are ' + rowCount + ' customers paid for this date.');
-							
-							
-							i++;
-						}
-					}
-					
-					// Reset values for Amt Received and Paid Remarks for those who are not saved/edited
-					$('.filterResults tr').each(function(){
-						if ( !$(this).hasClass('saved') ){
-							console.log( $(this).attr('data-loan_no') );
-							var tempAmtRcvd = $(this).find('#amt_received').attr('placeholder');
-							var tempLoanNo = $(this).attr('data-loan_no');
-							
-							$(this).find('#amt_received').val(tempAmtRcvd);
-							$('tr.' + tempLoanNo + ' input#PaidTrue_' + tempLoanNo ).prop('checked', true).change(); 
-						}
-						
-						
-					});
-					
-				}
-			  
-			});
-		}
+		loadAndCheckTransactions(accountSelect, transDate);
+		
 	});
 	
 	
@@ -322,6 +275,7 @@
 			});
 		}
 	});
+	
 	
 	/* --------------------------------------------
 	** Auto populate Cust # on new entry
@@ -364,13 +318,6 @@
 	/*
 	** Loan Details List - Open Slide Out Panel and show all transactions
 	*/
-	const slideOutPanel = $('#slide-out-panel').SlideOutPanel({
-		enableEscapeKey: true,
-		closeBtnSize: '18px',
-		width: '50vw',
-		screenZindex: '9998',
-	});
-	
 	$(document).on('click', '.btn_view_payments', function() {
 	
 		$('.loanDetails_main > table > tbody').html('');
@@ -433,7 +380,167 @@
 	});
 	
 	
-	// Slide Out Panel
+	/*
+	** On click, Print PDF on the targetted table
+	** - this is using jsPDF Autotable
+	*/
+	$(document).on('click', '.printPDF', function() {
+
+		const doc = new jspdf.jsPDF();
+		// doc.text("Hello world!", 10, 10);
+		var y = 20;  
+		var transDate = $('#transaction_date').val();
+		var totalPayments = $('.infoMsg__totalPayments strong').text();
+	
+		doc.setFontSize(10);
+		doc.text(5, 8, "Transaction Date: " + moment(transDate).format("MMMM DD, YYYY"));  
+		doc.text(80, 8, "Total Payments Received: " + totalPayments);  
+		
+		doc.autoTable({ 
+			html: '.filterResults table',
+			theme: 'grid',
+			margin: { top: 7, bottom: 5, left: 5, right: 5 },
+			startY: 12,
+			cellPadding: 3,
+			styles:{
+				fontSize: 6
+			}
+		});
+		doc.output('dataurlnewwindow');
+	});
+	
+	
+	/*
+	** On Page Load, perform the script below
+	*/
+	$( window ).load(function() {
+		var dailyTransDate = $('body.page-daily-transactions #transaction_date');
+
+		var transDate = dailyTransDate.val();
+		var accountSelect = $('.filterActions__account').val();
+		loadAndCheckTransactions(accountSelect, transDate);
+	  
+	});
+	
+	
+	/*
+	** For New Loans, auto populate and calculate other fields based on Duration, Loan Amt and Interest Rate
+	*/
+	$("#table_1_durationofloan, #table_1_totalloanamt, #table_1_loaninterestrate").bind("change", function() {
+		var dol = parseInt( $('#table_1_durationofloan').val() );
+		var tla = parseInt( $('#table_1_totalloanamt').val().split(",").join("") );
+		var lir = parseInt( $('#table_1_loaninterestrate').val() );
+		
+		var TLAIntAmt, TLAPayback, dailyRate, weeklyRate, biWeeklyRate, monthlyRate;
+		
+		TLAIntAmt = tla * (lir/100)
+		TLAPayback = tla + ( tla * (lir/100) )
+		dailyRate = TLAPayback / dol;
+		weeklyRate = dailyRate * 7;
+		biWeeklyRate = dailyRate * 14;
+		monthlyRate = dailyRate * 30;
+		
+		if ( dol && tla && lir ){
+			$('#table_1_tlainterestamt').val( TLAIntAmt )
+			$('#table_1_tlapayback').val( TLAPayback )
+			$('#table_1_dailyrate').val( dailyRate )
+			$('#table_1_weeklyrate').val( weeklyRate )
+			$('#table_1_weeklyrate').val( weeklyRate )
+			$('#table_1_biweeklyrate').val( biWeeklyRate )
+			$('#table_1_monthlyrate').val( monthlyRate )
+			$('#table_1_balance').val( TLAPayback )
+		}
+		
+	});
+	
+	
+	/*
+	**  ALL FUNCTIONS HERE PLEASE
+	*/
+	function loadAndCheckTransactions(accountSelect, transDate){
+		
+		var totalAmtReceived = 0;
+		
+		$('.infoMsg__transDate').html(''); // Clear transaction date message
+		
+		$('.filterResults tr').each(function(){
+			$(this).find('td#amt_received').html('');
+		});
+
+		if ( accountSelect ){
+			$.ajax({
+				data: {
+					transDate: transDate,
+					account: account
+				},
+				type: "POST",
+				dataType: 'json',
+				url: "/lfrlending/wp-content/themes/lfr-lending/read_transactions.php",                         
+				success: function(response){                    
+					// console.log( response[0] );
+					if (response){
+						var i = 0;
+						while (i < response.length) {
+							// console.log(response[i]);
+							var targetTR = $('tr.' + response[i].loan_no);
+							var amtReceived = response[i].amt_received;
+							var uLoanNo = response[i].loan_no;
+							var uPaidRemark = response[i].paid;
+							var rowCount = $('.filterResults tr.saved').length + 1;
+							
+							uPaidRemark = uPaidRemark.toLowerCase().replace(/\b[a-z]/g, function(letter) {
+								return letter.toUpperCase();
+							});
+							
+							$('tr.' + response[i].loan_no).find('td .btn_save').attr( "disabled", false );
+							
+							// Update the row and fields for the fetched data/values from DB
+							targetTR.addClass('saved');
+							targetTR.find('#amt_received').val(response[i].amt_received);
+							$('tr.' + uLoanNo + ' input[name="Paid_' + uLoanNo + '"]').prop('checked', false).change(); 
+							$('tr.' + uLoanNo + ' input#Paid' + uPaidRemark + '_' + uLoanNo).prop('checked', true).change(); 
+							
+							$('.infoMsg__transDate').text('There are ' + rowCount + ' customers paid for this date.');
+							
+							// Add Amt Received on Daily Transactions page
+							$('tr.' + uLoanNo + ' td#amt_received').text(amtReceived);
+							
+							i++;
+						}
+					}
+					
+					// Reset values for Amt Received and Paid Remarks for those who are not saved/edited
+					$('.filterResults tr').each(function(){
+						if ( !$(this).hasClass('saved') ){
+							var tempAmtRcvd = $(this).find('#amt_received').attr('placeholder');
+							var tempLoanNo = $(this).attr('data-loan_no');
+							
+							$(this).find('#amt_received').val(tempAmtRcvd);
+							$('tr.' + tempLoanNo + ' input#PaidTrue_' + tempLoanNo ).prop('checked', true).change(); 
+							
+						}
+						else {
+							
+							// Count all the payments made for the specific date
+							var amtReceived = $(this).find('td#amt_received').text();
+							var amtReceivedNum = parseFloat( amtReceived );
+							totalAmtReceived = totalAmtReceived + amtReceivedNum;
+						}
+					});
+					
+					$('.infoMsg__totalPayments').html('Total payments received for this date is <strong>' + format_number(totalAmtReceived) + '</strong>');
+					
+				}
+			  
+			});
+		}
+		
+	}
+	
+	
+	function format_number(n) {
+	  return n.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+	}
 	
 	
 })(jQuery);

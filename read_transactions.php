@@ -15,13 +15,22 @@ if ( isset($loanNo) ){
 else {
 	$sql = "SELECT * FROM lfr_transactions WHERE transaction_date = '" . $transDate . "' AND account = '" . $account . "'";
 	$result = mysqli_query($conn, $sql);
-}
 
+	// $totalPayments = "SELECT SUM(amt_received) FROM lfr_transactions WHERE transaction_date = '" . $transDate . "' AND account = '" . $account . "'";
+	// $totalresult = mysqli_query($conn, $totalPayments);
+	
+	// var_dump($totalresult);
+}
 
 while($row = $result->fetch_assoc()) {
     $data[] = $row;
 }
+
+// if ( $totalresult )
+// $data[] = array('total_payments' => $totalresult);
+
 echo json_encode($data);
+
 
 mysqli_free_result($result);
 

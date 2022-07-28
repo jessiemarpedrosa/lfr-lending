@@ -11,15 +11,21 @@ Text Domain:	 lfr-lending
 
 
 /*
-   Admin Area
+** Admin Area
 */
 #wpadminbar{
     z-index: 9999;	
 }
+.edit-link{
+	display: none !important;
+}
 
 /*
-    Add your custom styles here
+**  Add your custom styles here
 */
+header#masthead{
+    background: #eee;
+}
 #primary-menu li.current-menu-item a {
     border-bottom: 2px solid black;
     font-weight: bold;
@@ -96,6 +102,20 @@ h2.wpdt-c{
 #wdt-frontend-modal .modal-body .form-group {
     margin-bottom: 15px;
 }
+#table_1_tlainterestamt,
+#table_1_tlapayback,
+#table_1_dailyrate,
+#table_1_weeklyrate,
+#table_1_biweeklyrate,
+#table_1_monthlyrate,
+#table_1_balance {
+	background: #eee;
+	pointer-events: none;
+	border: 1px solid #cdcdcd;
+	color: black;
+	padding: 5px 7px;
+}
+
 
 body.logged-in.editor .dt-button.edit_table,
 body.logged-in.editor .dt-button.delete_table_entry{
@@ -165,6 +185,7 @@ tr.saved {
 }
 .filterResults table * {
     font-size: 14px;
+	vertical-align: middle;
 }
 .filterResults td.actions{
 	vertical-align: middle;	
@@ -192,6 +213,9 @@ tr.saved {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 30px;
+}
+.infoMsg p:empty {
+    display: none;
 }
 #edit_form .form-group {
     margin-bottom: 20px;
@@ -241,4 +265,7 @@ tr.saved {
     color: white;
     padding: 10px 10px;	
 	top: 30px;
+}
+.filterActions__btn input {
+    margin-right: 10px;
 }
