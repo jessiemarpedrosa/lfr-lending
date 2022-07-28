@@ -1,4 +1,4 @@
-# LFR Lending - Custom Theme and a Small Web App
+# LFR Lending - Custom WP Theme and a Small Web App for Micro Lending
 
 This is a small web app that consist of Customers, Loans, Transactions and other details relevant to them.
 
