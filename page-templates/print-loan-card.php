@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: Demand Letter 1
+ * Template Name: Print Loan Card
  * Template Post Type: page, post
  */
 
@@ -35,7 +35,7 @@ if (isset($_POST['filter'])){
 /*
 **  DB CONFIG 
 */
-include 'db-config.php';
+include __DIR__ . '/../includes/db-config.php';
 
 $sql_get_accounts = "SELECT DISTINCT account FROM lfr_loans";
 
@@ -56,9 +56,14 @@ $account = $_POST['account'];
 				<div class="filterActions__btn">
 					<input type="submit" value="Search" name="filter">
 					<input class="reset" type="reset" value="Clear">
-					<button id="printPromi" class="btn btn-primary px-4" type="button">Print</button>
 				</div>
 			</form>
+			
+				
+			<!-- <div class="transactionDate mb-4">
+				<label>Set Transaction Date:</label>
+				<input disabled type="date" id="transaction_date" class="transaction_date" onfocus="this.showPicker()">
+			</div> -->
 			
 		</div>
 		
@@ -82,20 +87,19 @@ if(isset($_POST['filter'])){
 	}
 	
 	if (isset($loan_no) && $loan_no!=''){
-		echo "Loan Number <span class='searched_loan_no text-bold'>" . $loan_no . '</span>'; 
+		echo "Loan Number containing <span class='searched_loan_no text-bold'>" . $loan_no . '</span>'; 
 		
 		if (isset($cust_no))
-		$queryLoanNo = " AND loans.loan_no = '" . $loan_no . "'";
+		$queryLoanNo = " AND loans.loan_no LIKE '%" . $loan_no . "%' ";
 		else
-		$queryLoanNo = " WHERE loans.loan_no = '" . $loan_no . "'";	
+		$queryLoanNo = " WHERE loans.loan_no LIKE '%" . $loan_no . "%' ";	
 	}
 	
 
 	/*
 	**	Query all Loans based on the values inputted on the fields above
 	*/
-	$sql_get_loans = "SELECT DISTINCT loans.loan_no, loans.account, loans.route_no, loans.cust_no, cust.fname, cust.lname, cust.bname, cust.waddress1, loans.loan_date, loans.dailyrate, 
-	loans.totalloanamt, loans.balance, loans.id, loans.status, loans.durationofloan, loans.tlapayback, loans.loaninterestrate
+	$sql_get_loans = "SELECT DISTINCT loans.loan_no, loans.account, loans.route_no, loans.cust_no, cust.fname, cust.lname, cust.bname, loans.loan_date, loans.dailyrate, loans.totalloanamt, loans.balance, loans.id, loans.status, loans.durationofloan, loans.tlapayback, loans.loaninterestrate
 	FROM lfr_loans loans INNER JOIN lfr_customers cust 
 	ON cust.custnum = loans.cust_no " . $queryLoanNo . $queryCustNo .
 	" GROUP BY loans.loan_no ORDER BY loans.status, loans.loan_date DESC";
@@ -103,9 +107,9 @@ if(isset($_POST['filter'])){
 	if($result = mysqli_query($conn, $sql_get_loans)){
 		$rowNum = 1;
 		$num_rows = mysqli_num_rows($result);
-	
+		
 		echo '<div class="infoMsg">
-			<p style="margin:10px 0 0;" >There\'s ' . $num_rows . ' record found for this search.</p>
+			<p style="margin:10px 0 0;" >There are ' . $num_rows . ' record/s found for this search.</p>
 			<p style="margin:10px 0 0;" class="infoMsg__transDate"></p>
 			</div>';
 
@@ -133,63 +137,6 @@ if(isset($_POST['filter'])){
 					
 					$desc1 = ($row['balance'] <= 0) ? 'LOAN PAYMENT' : 'UNPAID LOAN';
 					$cust_no = $row['cust_no'];
-					
-				?>
-		
-        		<!-- 1ST DEMAND LETTER Content -->		
-                <div id="promi_note" class="promi_content">
-                    <div class="head mb-4">
-                        <img style="height: 80px;" src="https://lfrlending.com/wp-content/uploads/2023/06/site-logo-120.png" />
-                        <div class="title">
-                            <h3>Land of Five Rivers Lending, INC.</h3>
-                            <p>C. Ouano Street, Centro, Mandaue City<br>
-                            Contact us @ 09772577244</p>
-                        </div>
-                    </div>
-                    
-                    <h4 class="text-center mb-3">1ST DEMAND LETTER</h3>
-                    
-                    <?php 
-                    $currentDateTime = new DateTime('now');
-                    $currentDate = $currentDateTime->format('F d, Y');
-                    ?>
-                    
-                    <div class="dletter_date mb-5">
-                        <p class="fw-bold mb-1 text-uppercase"><?= $currentDate; ?></p>
-                        <p class="fw-bold mb-1 text-capitalize"><?= $row['lname'] . ', ' . $row['fname']; ?></p>
-                        <p class="fw-bold mb-1"><?= $row['waddress1']; ?></p>
-                    </div>
-                    
-                    <p>Dear Sir/Madam,</p>
-                    
-                    <p class="text-indent">This has reference to your Promissory Note for **** <span class="totalLoanAmtWords value text-uppercase" data-value="<?= $row['totalloanamt'] ?>"></span> **** (₱<span class="totLoanAmt value"><?php echo number_format(( $row['totalloanamt'] ), 2, '.', ',') ?></span>)
-                    dated _____________ executed in favor of <span class="fw-bold">LAND OF FIVE RIVER LENDING, INC.</span></p>
-                    
-                    <p class="text-indent">The amount of ₱ <span class="totLoanAmt value"><?php echo number_format(( $row['totalloanamt'] ), 2, '.', ',') ?></span> is inclusive of past due interest
-                    and penalties of based on the above Promissory Note, remains unpaid.</p>
-                    
-                    <p class="text-indent">If the present conditions prevent you from making a payment now, please see us and afford us the opportunity of discussing the matter with you.
-                    For your manual interest, may we expect payment or hear from you within THREE (3) DAYS from receipt of this letter.</p>
-                    
-                    <p class="text-indent">Where sincere intentions exist, there is always a way to reach an agreement satisfactory to both parties.</p>
-                    
-                    <div class="d-flex justify-content-end mt-5 mb-5">
-                        <div>Yours truly,<br>
-                        LAND OF FIVE RIVER LENDING<br>
-                        <br><br>
-                        <p class="text-center"><span class="text-center fw-bold">RAMANDEEP SINGH</span><br>
-                        Manager</p>
-                        </div>
-                    </div>
-                    
-                    <p>Outsanding Balance : <span class="fw-bold">₱ <?= number_format(( $row['tlapayback'] ), 2, '.', ','); ?></span></p>
-                    
-                    <p>If payment has been made, please disregard this notice.<br>
-                    Cc: Legal Department</p>
-                    
-                </div>
-        		
-        		<?php
 					
 					echo "<tr data-test='" . $row['cust_no'] . " " . $row['id'] . "' class='" . $row['loan_no'] . "' data-loan_no='" . $row['loan_no'] . "' data-cust_no='" . $row['cust_no'] . "' >";
 						echo "<td>" . $rowNum . "</td>";
@@ -245,9 +192,9 @@ if(isset($_POST['filter'])){
 				<!-- Canvas element here -->
 				<img style="display:none;" id="lfr_logo" src="https://lfrlending.com/wp-content/uploads/2023/06/site-logo-120.png" />
 				
-				<img style="display:none;width:250px;height:250px;max-width: 250px;" id="lfrCustPhoto" src="<? echo $imageBig; ?>" />
+				<img style="display:none;width:250px;height:250px;max-width: 250px;" id="lfrCustPhoto" src="<?php echo $imageBig; ?>" />
 				
-				<div class="custInfo" style="display:block;">
+				<div class="custInfo" style="display:none;">
 					<span class="custInfo__name"><?php echo $row['fname'] . ' ' . $row['lname']; ?></span>
 					<span class="custInfo__address"><?php echo $row['waddress1']; ?></span>
 					<span class="custInfo__mobile"><?php echo $row['wcell']; ?></span>
@@ -276,17 +223,115 @@ mysqli_close($conn);
 
 ?>
 
+
+
+<div class="printBtnWrapper hidden">
+  <button class="printBtn" id="printBtnFront">
+    Print Loan Card - FRONT
+  </button>
+  <button class="printBtn" id="printBtnBack">
+    Print Loan Card - BACK
+  </button>
+</div>
+
+
+<div id="loanCardBack" class="hidden container p-0">
+
+	<div class="loanCardBack__header">
+		<h4 class="loanCardBack__headerTotAmt">Total Amount: </h4>
+		<h4 class="loanCardBack__headerDate">Date: </h4>
+	</div>
+
+	<div class="loanCardBack_colWrap">
+		<div class="loanCardBack_col">
+		  <table class="table table-bordered">
+			<thead>
+			  <tr>
+				<th>Date</th>
+				<th width="95">Payment</th>
+				<th width="95">Signature</th>
+			  </tr>
+			</thead>
+			<tbody>
+			</tbody>
+		  </table>
+		</div>
+		<div class="loanCardBack_col">
+		  <table class="table table-bordered">
+			<thead>
+			  <tr>
+				<th>Date</th>
+				<th>Payment</th>
+				<th>Signature</th>
+			  </tr>
+			</thead>
+			<tbody>
+			</tbody>
+		  </table>
+		</div>
+		<div class="loanCardBack_col">
+		  <table class="table table-bordered">
+			<thead>
+			  <tr>
+				<th>Date</th>
+				<th>Payment</th>
+				<th>Signature</th>
+			  </tr>
+			</thead>
+			<tbody>
+			</tbody>
+		  </table>
+		</div>
+		<div class="loanCardBack_col">
+		  <table class="table table-bordered">
+			<thead>
+			  <tr>
+				<th>Date</th>
+				<th>Payment</th>
+				<th>Signature</th>
+			  </tr>
+			</thead>
+			<tbody>
+			</tbody>
+		  </table>
+		</div>
+		<div class="loanCardBack_col">
+		  <table class="table table-bordered">
+			<thead>
+			  <tr>
+				<th>Date</th>
+				<th>Payment</th>
+				<th>Signature</th>
+			  </tr>
+			</thead>
+			<tbody>
+			</tbody>
+		  </table>
+		</div>
+		<div class="loanCardBack_col last">
+		  <table class="table table-bordered">
+			<thead>
+			  <tr>
+				<th>Date</th>
+				<th>Payment</th>
+				<th>Signature</th>
+			  </tr>
+			</thead>
+			<tbody>
+			</tbody>
+		  </table>
+		</div>
+
+	</div>
+  
+</div>
+
+
 <script>
 
 jQuery(function($){
 	
-	$("#printPromi").click(function(){
-    	$("#promi_note").printThis();
-	})
 	
-	var totalLoanAmt = $('.totalLoanAmtWords').data('value');
-	$('.totalLoanAmtWords').text(numToWords(totalLoanAmt));
-
 	var print = document.createElement('button')
 	var canvas = document.createElement('canvas')
 	var ctx = canvas.getContext('2d', { willReadFrequently: true })
@@ -366,46 +411,39 @@ jQuery(function($){
 		document.getElementById('loanCardFront').appendChild(canvas)
 		
 	}, 3000);
+
+	
+	
+	$('#printBtnFront').click(function(){
+		$('#loanCardFront').removeClass('makeCenter');
+		$('#loanCardFront').printThis();	
+	});
+
+	// Print Function for printing Back portion of Loan Passbook Card
+	$('#printBtnBack').on('click', function(e){
+		// $('#divhidden').printThis();	
+		console.log('You clicked the Print Back');
+		
+		html2canvas(document.querySelector("#loanCardBack")).then(canvas => {  
+			var dataURL = canvas.toDataURL();
+			var width = canvas.width;
+			var printWindow = window.open("");
+			
+			$(printWindow.document.body)
+			  .html("<img id='Image' src=" + dataURL + " style='" + width + "'></img>")
+			  .ready(function() {
+			  printWindow.focus();
+			  printWindow.print();
+			  // printWindow.close();
+			});
+		  });
+	});
+
+	if ( $('.loanDetailsList').length > 0 ){
+		$('.printBtnWrapper, #loanCardFront, #loanCardBack').removeClass('hidden');
+	}
 	
 });
-
-
-function numToWords(n) {
-    if (n < 0)
-      return false;
-	 single_digit = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine']
-	 double_digit = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']
-	 below_hundred = ['Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
-	if (n === 0) return 'Zero'
-	function translate(n) {
-		word = ""
-		if (n < 10) {
-			word = single_digit[n] + ' '
-		}
-		else if (n < 20) {
-			word = double_digit[n - 10] + ' '
-		}
-		else if (n < 100) {
-			rem = translate(n % 10)
-			word = below_hundred[(n - n % 10) / 10 - 2] + ' ' + rem
-		}
-		else if (n < 1000) {
-			word = single_digit[Math.trunc(n / 100)] + ' Hundred ' + translate(n % 100)
-		}
-		else if (n < 1000000) {
-			word = translate(parseInt(n / 1000)).trim() + ' Thousand ' + translate(n % 1000)
-		}
-		else if (n < 1000000000) {
-			word = translate(parseInt(n / 1000000)).trim() + ' Million ' + translate(n % 1000000)
-		}
-		else {
-			word = translate(parseInt(n / 1000000000)).trim() + ' Billion ' + translate(n % 1000000000)
-		}
-		return word
-	}
-	 result = translate(n) 
-	return result.trim()+' Pesos'
-}
 
 </script>
 
@@ -417,31 +455,11 @@ function numToWords(n) {
   #loanCardFront canvas{
 	  border: none;
   }
-  .promi_content{
-      border: none !important;
-      padding: 0 !important;
-  }
 }
 
-span.value{
-    font-weight: 600;
+.container{
+    max-width: 1680px;	
 }
-.promi_content{
-    border: 3px dashed #e0e0e0;
-    padding: 30px;
-}
-.promi_content .head{
-    display: flex;
-    gap: 50px;
-    justify-content: center;
-}
-.promi_content .head .title{
-    text-align: center;
-}
-.promi_content p.text-indent{
-    text-indent: 40px;
-}
-
 .container .hidden{
 	display: none;
 }
@@ -585,6 +603,29 @@ img#lfrCustPhoto {
 
 
 </style>
+
+<!-- Edit Modal HTML -->
+<div id="slide-out-panel" class="slide-out-panel">
+	<section class="p-4">
+		<h3 class="mb-4">Payments for Loan <span class='slidePanel_loanNo'></span></h3>
+		<div class="loanDetails_main">
+			<table class="table table-hover table-sm">
+				<thead>
+					<th>Payment Date</th>
+					<th>Desc 1</th>
+					<th>Desc 2</th>
+					<th>Paid?</th>
+					<th>Amt Received</th>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+			<div class="message_box" style='text-align: center;'></div>
+		</div>
+	</section>
+</div>
+
+<div class="mb-5"></div>
 
 
 <!-- PAGINATION -->

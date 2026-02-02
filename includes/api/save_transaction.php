@@ -1,6 +1,6 @@
 <?php
 
-include 'db-config.php';
+include __DIR__ . '/../db-config.php';
 
 // Check connection
 if($conn === false){

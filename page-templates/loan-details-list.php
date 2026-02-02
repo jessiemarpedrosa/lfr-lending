@@ -35,7 +35,7 @@ if (isset($_POST['filter'])){
 /*
 **  DB CONFIG 
 */
-include 'db-config.php';
+include __DIR__ . '/../includes/db-config.php';
 
 $sql_get_accounts = "SELECT DISTINCT account FROM lfr_loans";
 

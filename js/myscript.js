@@ -97,7 +97,7 @@
 			// If Amt Received is not empty, POST data via AJAX, and save to DB
 			if( amt_received && amt_received!="" ){
 				$.ajax({
-					url: "/wp-content/themes/lfr-lending/save_transaction.php",
+					url: "/wp-content/themes/lfr-lending/includes/api/save_transaction.php",
 					type: "POST",
 					dataType: 'json',
 					data: {
@@ -206,7 +206,7 @@
 				},
 				type: "POST",
 				dataType: 'json',
-				url: "/wp-content/themes/lfr-lending/update_transaction.php",
+				url: "/wp-content/themes/lfr-lending/includes/api/update_transaction.php",
 				cache: false,
 				success: function(dataResult){
 					//var dataResult = JSON.parse(dataResult);
@@ -296,7 +296,7 @@
 		
 		if ( loanNoField.val() == '' ){
 			$.ajax({
-				url: "/wp-content/themes/lfr-lending/read_loans.php",     
+				url: "/wp-content/themes/lfr-lending/includes/api/read_loans.php",     
 				type: "GET",
 				dataType: 'json',                    
 				success: function(response){                    
@@ -324,7 +324,7 @@
 		
 		if ( custNoField.val() == '' ){
 			$.ajax({
-				url: "/wp-content/themes/lfr-lending/read_customers.php",     
+				url: "/wp-content/themes/lfr-lending/includes/api/read_customers.php",     
 				type: "GET",
 				dataType: 'json',                    
 				success: function(response){                    
@@ -376,7 +376,7 @@
 				},
 				type: "POST",
 				dataType: 'json',
-				url: "/wp-content/themes/lfr-lending/read_transactions.php",                         
+				url: "/wp-content/themes/lfr-lending/includes/api/read_transactions.php",                         
 				success: function(response){    
 					// console.log( response[0] );
 					if (response){
@@ -453,7 +453,7 @@
 				},
 				type: "POST",
 				dataType: 'json',
-				url: "/wp-content/themes/lfr-lending/read_transactions_delinq.php",                         
+				url: "/wp-content/themes/lfr-lending/includes/api/read_transactions_delinq.php",                         
 				success: function(response){    
 					console.log( response );
 					if (response){
@@ -601,7 +601,7 @@
 				},
 				type: "POST",
 				dataType: 'json',
-				url: "/wp-content/themes/lfr-lending/read_transactions.php",                         
+				url: "/wp-content/themes/lfr-lending/includes/api/read_transactions.php",                         
 				success: function(response){                    
 					// console.log( response[0] );
 					if (response){

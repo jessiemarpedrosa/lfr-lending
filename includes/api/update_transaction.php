@@ -2,7 +2,7 @@
 
 error_reporting (E_ALL ^ E_NOTICE); 
 
-include 'db-config.php';
+include __DIR__ . '/../db-config.php';
 
 $id = $_POST['id'];
 $paidRemark = $_POST['paidRemark'];
