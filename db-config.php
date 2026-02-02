@@ -5,10 +5,10 @@
 */
 /* Database credentials. Assuming you are running MySQL
 server with default setting (user 'root' with no password) */
-$servername = "localhost:3308";
-$username = "root";
-$password = "";
-$db="rekta";
+$servername = "localhost";
+$db="lfrlxope_lfr2022";
+$username = "lfrlxope_lfruser";
+$password = "34qIQ!i*fRK?";
 
 $conn = mysqli_connect($servername, $username, $password, $db);
 

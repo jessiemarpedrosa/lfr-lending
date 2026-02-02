@@ -20,9 +20,15 @@ $account=$_POST['account'];
 $route_no=$_POST['route_no'];
 $name=$_POST['name'];
 $bName=$_POST['bName'];
+
+// $bName= mysqli_real_escape_string( trim($_POST['bName']) );
+// $bName=$mysqli -> real_escape_string($_POST['bName']);
+
 $loanDate=$_POST['loanDate'];
 
 $sql = "INSERT INTO lfr_transactions ( transaction_date, description_1, description_2, paid, amt_received, customer_no, loan_no, balance, total_loan_amt, account, route_no, name, business_name, loan_date ) VALUES ( '$transDate','$desc1','$desc2','$paidRemark','$amt_received','$custNo','$loanNo','$balance','$totalLoanAmt','$account','$route_no','$name','$bName','$loanDate' )";
+
+// var_dump($sql);
 
 if (mysqli_query($conn, $sql)) {
 	$last_id = mysqli_insert_id($conn);

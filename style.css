@@ -9,6 +9,16 @@ Version:		 1.0.0
 Text Domain:	 lfr-lending
 */
 
+/**
+ * Typography
+*/
+h1, h2, h3, h4, h5, h6 {
+	font-family: "Segoe UI", Georgia, "Times New Roman", serif;
+}
+.site-title a, .site-title a:visited{
+	font-family: "Segoe UI", Georgia, "Times New Roman", serif;
+	font-weight: 500;
+}
 
 /*
 ** Admin Area
@@ -26,10 +36,50 @@ Text Domain:	 lfr-lending
 header#masthead{
     background: #eee;
 }
-#primary-menu li.current-menu-item a {
+#primary-menu li.current-menu-item > a {
     border-bottom: 2px solid black;
     font-weight: bold;
 }
+#main-nav li.login a.nav-link,
+#main-nav li.logout a.nav-link {
+    display: flex;
+    align-items: center;
+}
+#main-nav li.login a.nav-link:before,
+#main-nav li.logout a.nav-link:before  {
+	content: '';
+	background: url(images/login_icon.png);
+	width: 18px;
+	height: 18px;
+	display: block;
+	background-size: cover;
+	background-repeat: no-repeat;
+	margin-right: 10px;
+}
+#main-nav li.logout a.nav-link:before {
+	background-image: url(images/logout_icon.png);
+}
+div#content{
+	min-height: 600px;
+}
+body.home div#content {
+	background: url(https://lfrlending.com/wp-content/uploads/2022/08/pexels-photo-6328955.jpg);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+body.home .site-main .entry-content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #0000005c;
+    margin: 20vh 0;
+    padding: 12vh 0;
+    box-shadow: 0px 0px 30px -3px #00000047;
+    color: white;
+}
+
 body.logged-in.editor li#wp-admin-bar-edit,
 body.logged-in.editor li#wp-admin-bar-new-content,
 body.logged-in.editor li#wp-admin-bar-delete-cache {
@@ -87,13 +137,36 @@ h2.wpdt-c{
 	opacity: 100 !important;
 }
 #wdt-frontend-modal .modal-dialog {
-	max-width: 700px;
+	width: 1000px;
+	max-width: 100%;
 	-webkit-transform: translate(0,0%);
 	-ms-transform: translate(0,0%);
 	-o-transform: translate(0,0%);
 	transform: translate(0,0%);
 }
-
+#wdt-frontend-modal.modal.fade{
+	background: rgba(32, 32, 32, 0.85);
+}
+#wdt-frontend-modal.modal .modal-header {
+    background: #eee;
+}
+#wdt-frontend-modal.modal .modal-header .close{
+	display: none;
+}
+#wdt-frontend-modal .modal-body{
+    padding: 20px 26px 10px;	
+}
+#wdt-frontend-modal .modal-body .row.wdt-edit-dialog-fields-block{
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	list-style: none;
+	height: 50em;
+}
+body.page-all-loans #wdt-frontend-modal .modal-body .row.wdt-edit-dialog-fields-block{
+	height: 35em;
+}
 #wdt-frontend-modal .modal-body .form-group .control-label{
 	font-weight: 400;
 	font-size: 13px;
@@ -101,6 +174,10 @@ h2.wpdt-c{
 }
 #wdt-frontend-modal .modal-body .form-group {
     margin-bottom: 15px;
+	width: 49%;
+}
+.wpDataTables.wpDataTablesWrapper .dataTables_info {
+    font-size: 13px;
 }
 #table_1_tlainterestamt,
 #table_1_tlapayback,
@@ -115,7 +192,9 @@ h2.wpdt-c{
 	color: black;
 	padding: 5px 7px;
 }
-
+.column-profile_picture img {
+    width: 50px;
+}
 
 body.logged-in.editor .dt-button.edit_table,
 body.logged-in.editor .dt-button.delete_table_entry{
@@ -236,8 +315,11 @@ tr.saved {
 #main-nav a.dropdown-item:last-child{
 	border: none;
 }
+#main-nav a.dropdown-item:active{
+	background: #e9ecef;
+}
 .wpDataTablesWrapper table.wpDataTable tr.selected td {
-    background: #009b2178 !important;
+	background: #009b2178 !important;
 }
 
 .modal-body #table_1_custnum,
@@ -250,13 +332,13 @@ tr.saved {
 /*
 **  Loan Details List
 */
-.loanDetailsList td.Closed,
-.loanDetailsList td.Active{
+.loanDetailsList td.CLOSED,
+.loanDetailsList td.ACTIVE{
 	text-transform: uppercase;
 	font-weight: bold;
 	color: green !important;
 }
-.loanDetailsList td.Closed{
+.loanDetailsList td.CLOSED{
 	color: red !important;
 }
 .slide-out-panel-container .slide-out-content .close-slide-out-panel{
@@ -268,4 +350,14 @@ tr.saved {
 }
 .filterActions__btn input {
     margin-right: 10px;
+}
+
+tr.delinqCust {
+    background: #ffdcdc;
+}
+span.loanDetails_totalAmount {
+    display: flex;
+    justify-content: end;
+    font-weight: bold;
+    font-size: 18px;
 }

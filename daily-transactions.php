@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: D Transactions
+ * Template Name: Daily Transactions
  * Template Post Type: page, post
  */
 
@@ -110,10 +110,14 @@ if(isset($_POST['filter'])){
 	/*
 	**	Query all Loans based on the selected Account from dropdown
 	*/
+	// $sql_get_loans = "SELECT DISTINCT loans.loan_no, loans.account, loans.route_no, loans.cust_no, cust.fname, cust.lname, cust.bname, loans.loan_date, loans.dailyrate, loans.totalloanamt, loans.balance, loans.id
+	// FROM lfr_loans loans INNER JOIN lfr_customers cust 
+	// ON cust.account = loans.account " . $queryAccount . $queryLoanNo . $queryCustNo .
+	// " AND loans.status = 'ACTIVE' GROUP BY loans.loan_no ORDER BY loans.route_no";
+	
 	$sql_get_loans = "SELECT DISTINCT loans.loan_no, loans.account, loans.route_no, loans.cust_no, cust.fname, cust.lname, cust.bname, loans.loan_date, loans.dailyrate, loans.totalloanamt, loans.balance, loans.id
-	FROM lfr_loans loans INNER JOIN lfr_customers cust 
-	ON cust.account = loans.account " . $queryAccount . $queryLoanNo . $queryCustNo .
-	" AND loans.status = 'ACTIVE' GROUP BY loans.loan_no ORDER BY cust.fname";
+	FROM lfr_loans loans INNER JOIN lfr_customers cust " . $queryAccount . $queryLoanNo . $queryCustNo .
+	" AND loans.status = 'ACTIVE' GROUP BY loans.loan_no ORDER BY loans.route_no";
 	
 	/*
 	**	Query Transactions Table for all saved Transactions of specific Account
@@ -140,13 +144,13 @@ if(isset($_POST['filter'])){
 			</div>';
 
 		if(mysqli_num_rows($result) > 0){
-			echo '<div class="filterResults"><table class="table table-bordered table-striped">';
+			echo '<div class="filterResults"><table class="table table-bordered">';
 				echo "<thead>";
 					echo "<tr>";
 						echo "<th>#</th>";
 						echo "<th style='width: 95px;'>Loan No.</th>";
 						echo "<th>Customer No.</th>";
-						echo "<th>Account</th>";
+						// echo "<th>Account</th>";
 						echo "<th>Route No.</th>";
 						echo "<th>Customer Name</th>";
 						echo "<th>Business Name</th>";
@@ -164,7 +168,7 @@ if(isset($_POST['filter'])){
 						echo "<td>" . $rowNum . "</td>";
 						echo "<td>" . $row['loan_no'] . "</td>";
 						echo "<td>" . $row['cust_no'] . "</td>";						
-						echo "<td>" . $row['account'] . "</td>";
+						// echo "<td>" . $row['account'] . "</td>";
 						echo "<td>" . $row['route_no'] . "</td>";
 						echo "<td>" . $row['fname'] . "</td>";
 						echo "<td>" . $row['bname'] . "</td>";

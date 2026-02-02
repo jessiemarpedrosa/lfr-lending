@@ -26,7 +26,7 @@
 						<section id="text-colophon" class="widget widget_custom_html">
 							<div class="textwidget">
 								<div class="site-info">
-									LFR Lending 2022				
+									Copyright © <?php echo date("Y"); ?> | LFR Lending
 									</div><!-- .site-info -->	
 							</div>
 						</section>

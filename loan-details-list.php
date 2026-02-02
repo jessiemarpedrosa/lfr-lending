@@ -101,11 +101,11 @@ if(isset($_POST['filter'])){
 	
 
 	/*
-	**	Query all Loans based on the selected Account from dropdown
+	**	Query all Loans based on the values inputted on the fields above
 	*/
 	$sql_get_loans = "SELECT DISTINCT loans.loan_no, loans.account, loans.route_no, loans.cust_no, cust.fname, cust.lname, cust.bname, loans.loan_date, loans.dailyrate, loans.totalloanamt, loans.balance, loans.id, loans.status, loans.durationofloan
 	FROM lfr_loans loans INNER JOIN lfr_customers cust 
-	ON cust.account = loans.account " . $queryLoanNo . $queryCustNo .
+	ON cust.custnum = loans.cust_no " . $queryLoanNo . $queryCustNo .
 	" GROUP BY loans.loan_no ORDER BY loans.status, loans.loan_date DESC";
 	
 	if($result = mysqli_query($conn, $sql_get_loans)){

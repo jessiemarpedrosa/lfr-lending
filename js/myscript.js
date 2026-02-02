@@ -3,16 +3,20 @@
 	/* --------------------------------------------
 	** Declare Variables and Constants
 	* --------------------------------------------- */ 
+
 	const slideOutPanel = $('#slide-out-panel').SlideOutPanel({
 		enableEscapeKey: true,
 		closeBtnSize: '18px',
 		width: '50vw',
 		screenZindex: '9998',
 	});
+ 
 
 	// Get Account name, and set it to the dropdown as Selected value
 	var account = $('.searched_account').text();
 	
+	var delinqStartDate = $('#delinq_start_date').val();
+	var delinqEndDate = $('#delinq_end_date').val();
 	
 	// Show loading gif icon when ajax has started
 	$(document).on({
@@ -39,7 +43,13 @@
 	$('.filterActions__custNo input[name="cust_no"]').val( $('.searched_cust_no').text() );
 	
 	
-	 $('body.page-daily-transactions #transaction_date').val(new Date().toJSON().slice(0,10));
+	$('body.page-daily-transactions #transaction_date').val(new Date().toJSON().slice(0,10));
+	
+	if ( $.trim(delinqStartDate) == '' )
+		$('#delinq_start_date').val( $('span.delinq_start_date').text() );
+
+	if ( $.trim(delinqEndDate) == '' )
+		$('#delinq_end_date').val( $('span.delinq_end_date').text() );
 	
 	/* --------------------------------------------
 	** On Change of Account, trigger a click on the Filter button
@@ -73,11 +83,13 @@
 			var desc1 = $(this).find('input[name="description1"]').val(); //Loan No.
 			var paidRemark = $(this).find('input[type="radio"]:checked').attr('data-value');
 			var btn = $(this).find('.btn_save');		
-			var custNo = $(this).find('td:eq(3)').text(); //Customer No.
+
 			var loanNo = $(this).find('td:eq(0)').text(); //Loan No.
-			var name = $(this).find('td:eq(4)').text(); //Loan No.
-			var bName = $(this).find('td:eq(5)').text().replace(/'/g,""); //Loan No.
-			var loanDate = $(this).find('td:eq(6)').text(); //Loan No.
+			var custNo = $(this).find('td:eq(2)').text(); //Customer No.
+			var name = $(this).find('td:eq(3)').text(); //Cust Name
+			var bName = $(this).find('td:eq(4)').text().replace(/'/g,""); //Business Name
+			var loanDate = $(this).find('td:eq(5)').text(); //Loan Date
+			
 			var totalLoanAmt = $(this).find('input[name="totalloanamt"]').val(); //Loan No.
 			var route_no = $(this).find('input[name="route_no"]').val(); //Loan No.
 			var balance = $(this).find('input[name="balance"]').val(); //Loan No.
@@ -85,7 +97,7 @@
 			// If Amt Received is not empty, POST data via AJAX, and save to DB
 			if( amt_received && amt_received!="" ){
 				$.ajax({
-					url: "/lfrlending/wp-content/themes/lfr-lending/save_transaction.php",
+					url: "/wp-content/themes/lfr-lending/save_transaction.php",
 					type: "POST",
 					dataType: 'json',
 					data: {
@@ -139,7 +151,7 @@
 		$(this).closest('tr').each(function() {
 			// Declare all variables and get all data ready for saving to DB
 			var loanNo = $(this).find('td:eq(0)').text(); //Loan No.
-			var name = $(this).find('td:eq(4)').text(); //Name
+			var name = $(this).find('td:eq(3)').text(); //Name
 			var paidRemark = $(this).find('input[type="radio"]:checked').attr('data-value');
 			var amt_received = $(this).find('td #amt_received').val();
 			
@@ -194,7 +206,7 @@
 				},
 				type: "POST",
 				dataType: 'json',
-				url: "/lfrlending/wp-content/themes/lfr-lending/update_transaction.php",
+				url: "/wp-content/themes/lfr-lending/update_transaction.php",
 				cache: false,
 				success: function(dataResult){
 					//var dataResult = JSON.parse(dataResult);
@@ -250,6 +262,32 @@
 	
 	
 	/* --------------------------------------------
+	** Re-check whoever pays on that specific Date and specific Account,
+	** Then highlight it on the Add Multiple Transactions table list
+	* --------------------------------------------- */ 
+	/**
+	$(document).on('change', '#delinq_start_date', function() {
+		var transDate = $(this).val();
+		var accountSelect = $('.filterActions__account').val();
+		var currDate = new Date();
+		
+		// Check transaction date if its over the current date
+		if (new Date(transDate).getTime() > currDate.getTime()) {
+			  alert("Transaction Date must not be over the current date.");
+			  $('#transaction_date').val('');
+			  return false;
+		 }
+		
+		// Clear all .saved class on all results
+		$('.filterResults tr').removeClass('saved');
+		
+		loadAndCheckTransactions(accountSelect, transDate);
+		
+	});
+	**/
+	
+	
+	/* --------------------------------------------
 	** Auto populate Loan # on new entry
 	* --------------------------------------------- */ 
 	$(document).on('click','.wpDataTableID-3 .new_table_entry',function(e) {
@@ -258,7 +296,7 @@
 		
 		if ( loanNoField.val() == '' ){
 			$.ajax({
-				url: "/lfrlending/wp-content/themes/lfr-lending/read_loans.php",     
+				url: "/wp-content/themes/lfr-lending/read_loans.php",     
 				type: "GET",
 				dataType: 'json',                    
 				success: function(response){                    
@@ -286,7 +324,7 @@
 		
 		if ( custNoField.val() == '' ){
 			$.ajax({
-				url: "/lfrlending/wp-content/themes/lfr-lending/read_customers.php",     
+				url: "/wp-content/themes/lfr-lending/read_customers.php",     
 				type: "GET",
 				dataType: 'json',                    
 				success: function(response){                    
@@ -328,6 +366,9 @@
 		var loan_no = $(this).attr('data-loan_no');
 		$('.slidePanel_loanNo').text(loan_no);
 		
+		var cust_name = $(this).attr('data-cust_name');
+		$('.slidePanel_custName').text(cust_name);
+		
 		if ( loan_no ){
 			$.ajax({
 				data: {
@@ -335,9 +376,86 @@
 				},
 				type: "POST",
 				dataType: 'json',
-				url: "/lfrlending/wp-content/themes/lfr-lending/read_transactions.php",                         
+				url: "/wp-content/themes/lfr-lending/read_transactions.php",                         
 				success: function(response){    
 					// console.log( response[0] );
+					if (response){
+						var i = 0, rowData='';					
+						var totAmtPerLoan = 0;
+		
+						while (i < response.length) {
+							var transDate = response[i].transaction_date;
+							var desc1 = response[i].description_1;
+							var desc2 = response[i].description_2;
+							var paidRemark = response[i].paid;
+							var amtReceived = response[i].amt_received;
+							
+							totAmtPerLoan += parseInt(amtReceived);
+							
+							rowData += '<tr><td>' + transDate + '</td><td>' + desc1 + '</td><td>' + desc2 + '</td><td>' + paidRemark + '</td><td>' + amtReceived + '</tr>';
+							
+							i++;
+						}
+						
+						$('.loanDetails_main > table > tbody').html(rowData);
+						
+						// Add Total Amount per Loan Detail Slide Out Panel
+						$('.loanDetails_main .loanDetails_totalAmount').empty();
+						$('.loanDetails_main').append('<span class="loanDetails_totalAmount">Total: ' + totAmtPerLoan.toLocaleString("en") + '</span>');
+					}
+					else {
+						$('.message_box').html("<br>No payments found or it may have been deleted.");
+					}
+					
+					// Reset values for Amt Received and Paid Remarks for those who are not saved/edited
+					$('.filterResults tr').each(function(){
+						if ( !$(this).hasClass('saved') ){
+							// console.log( $(this).attr('data-loan_no') );
+							var tempAmtRcvd = $(this).find('#amt_received').attr('placeholder');
+							var tempLoanNo = $(this).attr('data-loan_no');
+							
+							$(this).find('#amt_received').val(tempAmtRcvd);
+							$('tr.' + tempLoanNo + ' input#PaidTrue_' + tempLoanNo ).prop('checked', true).change(); 
+						}
+					});
+				}
+			  
+			});
+		}
+	});
+	
+	
+	/*
+	** Delinquent Customers - Open Slide Out Panel and show all transactions
+	*/
+	$(document).on('click', '.btn_view_delinqCust', function() {
+	
+		$('.loanDetails_main > table > tbody').html('');
+		$('.message_box').html('');
+		
+		slideOutPanel.open();
+		
+		var loan_no = $(this).attr('data-loan_no');
+		$('.slidePanel_loanNo').text(loan_no);
+		
+		var cust_name = $(this).attr('data-cust_name');
+		$('.slidePanel_custName').text(cust_name);
+		
+		var start_date = $('span.delinq_start_date').text();
+		var end_date = $('span.delinq_end_date').text();
+		
+		if ( loan_no ){
+			$.ajax({
+				data: {
+					loan_no: loan_no,
+					start_date: start_date,
+					end_date: end_date,
+				},
+				type: "POST",
+				dataType: 'json',
+				url: "/wp-content/themes/lfr-lending/read_transactions_delinq.php",                         
+				success: function(response){    
+					console.log( response );
 					if (response){
 						var i = 0, rowData='';
 						
@@ -375,8 +493,6 @@
 			  
 			});
 		}
-		
-		
 	});
 	
 	
@@ -391,19 +507,23 @@
 		var y = 20;  
 		var transDate = $('#transaction_date').val();
 		var totalPayments = $('.infoMsg__totalPayments strong').text();
+		var searchedAccount = $('.searched_account ').text();
 	
 		doc.setFontSize(10);
+		doc.setFont(undefined, 'bold');
 		doc.text(5, 8, "Transaction Date: " + moment(transDate).format("MMMM DD, YYYY"));  
-		doc.text(80, 8, "Total Payments Received: " + totalPayments);  
+		doc.text(80, 8, "Collector: " + searchedAccount);
+		doc.text(140, 8, "Total Payments Received: " + totalPayments);  
 		
 		doc.autoTable({ 
 			html: '.filterResults table',
 			theme: 'grid',
+			bodyStyles: {lineColor: [0, 0, 0]},
 			margin: { top: 7, bottom: 5, left: 5, right: 5 },
 			startY: 12,
 			cellPadding: 3,
 			styles:{
-				fontSize: 6
+				fontSize: 9
 			}
 		});
 		doc.output('dataurlnewwindow');
@@ -419,7 +539,9 @@
 		var transDate = dailyTransDate.val();
 		var accountSelect = $('.filterActions__account').val();
 		loadAndCheckTransactions(accountSelect, transDate);
-	  
+		
+		if ( $('.delinq_end_date').text() == '' )
+			$('#delinq_end_date').val( new Date().toJSON().slice(0,10) );
 	});
 	
 	
@@ -433,21 +555,25 @@
 		
 		var TLAIntAmt, TLAPayback, dailyRate, weeklyRate, biWeeklyRate, monthlyRate;
 		
-		TLAIntAmt = tla * (lir/100)
-		TLAPayback = tla + ( tla * (lir/100) )
-		dailyRate = TLAPayback / dol;
-		weeklyRate = dailyRate * 7;
-		biWeeklyRate = dailyRate * 14;
-		monthlyRate = dailyRate * 30;
+		console.log( dol )
+		console.log( tla )
+		console.log( lir )
 		
-		if ( dol && tla && lir ){
+		if ( dol && tla && lir >=0 ){
+		
+			TLAIntAmt = tla * (lir/100)
+			TLAPayback = tla + ( tla * (lir/100) )
+			dailyRate = TLAPayback / dol;
+			weeklyRate = dailyRate * 7;
+			biWeeklyRate = dailyRate * 14;
+			monthlyRate = dailyRate * 30;
+			
 			$('#table_1_tlainterestamt').val( TLAIntAmt )
 			$('#table_1_tlapayback').val( TLAPayback )
-			$('#table_1_dailyrate').val( dailyRate )
-			$('#table_1_weeklyrate').val( weeklyRate )
-			$('#table_1_weeklyrate').val( weeklyRate )
-			$('#table_1_biweeklyrate').val( biWeeklyRate )
-			$('#table_1_monthlyrate').val( monthlyRate )
+			$('#table_1_dailyrate').val( Math.round(dailyRate) )
+			$('#table_1_weeklyrate').val( Math.round(weeklyRate) )
+			$('#table_1_biweeklyrate').val( Math.round(biWeeklyRate) )
+			$('#table_1_monthlyrate').val( Math.round(monthlyRate) )
 			$('#table_1_balance').val( TLAPayback )
 		}
 		
@@ -475,13 +601,14 @@
 				},
 				type: "POST",
 				dataType: 'json',
-				url: "/lfrlending/wp-content/themes/lfr-lending/read_transactions.php",                         
+				url: "/wp-content/themes/lfr-lending/read_transactions.php",                         
 				success: function(response){                    
 					// console.log( response[0] );
 					if (response){
 						var i = 0;
 						while (i < response.length) {
 							// console.log(response[i]);
+							var transID = response[i].id;
 							var targetTR = $('tr.' + response[i].loan_no);
 							var amtReceived = response[i].amt_received;
 							var uLoanNo = response[i].loan_no;
@@ -499,6 +626,7 @@
 							targetTR.find('#amt_received').val(response[i].amt_received);
 							$('tr.' + uLoanNo + ' input[name="Paid_' + uLoanNo + '"]').prop('checked', false).change(); 
 							$('tr.' + uLoanNo + ' input#Paid' + uPaidRemark + '_' + uLoanNo).prop('checked', true).change(); 
+							$('tr.' + uLoanNo + ' button.btn_edit').attr('data-id', transID);
 							
 							$('.infoMsg__transDate').text('There are ' + rowCount + ' customers paid for this date.');
 							
@@ -544,4 +672,3 @@
 	
 	
 })(jQuery);
-

@@ -3,6 +3,7 @@
  function lfr_lending_enqueue_styles() {
   wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' ); 
   wp_enqueue_style( 'slide-out-panel', get_stylesheet_directory_uri() . '/css/slide-out-panel.css' ); 
+  wp_enqueue_style( 'print-js', get_stylesheet_directory_uri() . '/css/print.min.css' ); 
 } 
 	
 // /**
@@ -22,7 +23,10 @@ function load_my_scripts( $hook ) {
 	wp_enqueue_script( 'jspdf', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', array('jquery'), true );
 	wp_enqueue_script( 'jspdf_autotable', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js', array('jquery'), true );
 	wp_enqueue_script( 'slide-out-panel', get_stylesheet_directory_uri() . '/js/slide-out-panel.js', array('jquery'), '1.0', true );
+	wp_enqueue_script( 'print-js', get_stylesheet_directory_uri() . '/js/print.min.js', array('jquery'), '1.0', true );
 	wp_enqueue_script( 'my_custom_script', get_stylesheet_directory_uri() . '/js/myscript.js', array('jquery'), '1.0', true );
+	wp_enqueue_script( 'printThis', get_stylesheet_directory_uri() . '/js/printThis.js', array('jquery'), '1.0', true );
+	wp_enqueue_script( 'html2canvas', get_stylesheet_directory_uri() . '/js/html2canvas.min.js', array('jquery'), '1.0', true );
 }
 add_action( 'wp_enqueue_scripts', 'load_my_scripts' );
 
@@ -38,10 +42,10 @@ add_action( 'admin_enqueue_scripts', 'wpdocs_enqueue_custom_admin_style' );
 
 add_action( 'init', 'loadDB' );
 function loadDB(){
-	$servername = "localhost:3308";
-	$username = "root";
-	$password = "";
-	$db="rekta";
+	$servername = "localhost";
+	$db="lfrlxope_lfr2022";
+	$username = "lfrlxope_lfruser";
+	$password = "34qIQ!i*fRK?";
 	$conn = mysqli_connect($servername, $username, $password,$db);
 }
 
@@ -62,6 +66,7 @@ function my_login_logo() { ?>
     </style>
 <?php }
 add_action( 'login_enqueue_scripts', 'my_login_logo' );
+
 
 //Page Slug Body Class
 function add_slug_body_class( $classes ) {

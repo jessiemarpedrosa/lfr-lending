@@ -33,3 +33,7 @@
 	border-radius: 3px;
 }
 
+input#delinq_end_date{
+    pointer-events: none;
+    background: #eee;	
+}

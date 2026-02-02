@@ -38,6 +38,7 @@ if (isset($_POST['filter'])){
 */
 include 'db-config.php';
 
+/// Get All Distinct Accounts/Collectors Name
 $sql_get_accounts = "SELECT DISTINCT account FROM lfr_loans WHERE `status` = 'Active'";
 
 /*
@@ -109,10 +110,15 @@ if(isset($_POST['filter'])){
 	/*
 	**	Query all Loans based on the selected Account from dropdown
 	*/
+	
+	// $sql_get_loans = "SELECT DISTINCT loans.loan_no, loans.account, loans.route_no, loans.cust_no, cust.fname, cust.lname, cust.bname, loans.loan_date, loans.dailyrate, loans.totalloanamt, loans.balance, loans.id
+	// FROM lfr_loans loans INNER JOIN lfr_customers cust 
+	// ON cust.account = loans.account " . $queryAccount . $queryLoanNo . $queryCustNo .
+	// " AND loans.status = 'ACTIVE' GROUP BY loans.loan_no ORDER BY loans.route_no";
+	
 	$sql_get_loans = "SELECT DISTINCT loans.loan_no, loans.account, loans.route_no, loans.cust_no, cust.fname, cust.lname, cust.bname, loans.loan_date, loans.dailyrate, loans.totalloanamt, loans.balance, loans.id
-	FROM lfr_loans loans INNER JOIN lfr_customers cust 
-	ON cust.account = loans.account " . $queryAccount . $queryLoanNo . $queryCustNo .
-	" AND loans.status = 'ACTIVE' GROUP BY loans.loan_no ORDER BY cust.fname";
+	FROM lfr_loans loans INNER JOIN lfr_customers cust " . $queryAccount . $queryLoanNo . $queryCustNo .
+	" AND loans.status = 'ACTIVE' GROUP BY loans.loan_no ORDER BY loans.route_no";
 	
 	/*
 	**	Query Transactions Table for all saved Transactions of specific Account
@@ -142,7 +148,7 @@ if(isset($_POST['filter'])){
 				echo "<thead>";
 					echo "<tr>";
 						echo "<th style='width: 95px;'>Loan No.</th>";
-						echo "<th>Account</th>";
+						// echo "<th>Account</th>";
 						echo "<th>Route No.</th>";
 						echo "<th style='width: 90px;'>Cust No.</th>";
 						echo "<th>Name</th>";
@@ -160,7 +166,7 @@ if(isset($_POST['filter'])){
 					
 					echo "<tr data-test='" . $row['cust_no'] . " " . $row['id'] . "' class='" . $row['loan_no'] . "' data-loan_no='" . $row['loan_no'] . "' data-cust_no='" . $row['cust_no'] . "' >";
 						echo "<td>" . $row['loan_no'] . "</td>";
-						echo "<td>" . $row['account'] . "</td>";
+						// echo "<td>" . $row['account'] . "</td>";
 						echo "<td>" . $row['route_no'] . "</td>";
 						echo "<td>" . $row['cust_no'] . "</td>";
 						echo "<td>" . $row['fname'] . "</td>";
@@ -173,7 +179,7 @@ if(isset($_POST['filter'])){
 									<label for='PaidFalse_" . $row['loan_no'] . "'>FALSE</label></span></td>";
 						echo "<td class='actions'>";
 							echo '<button class="btn_save btn btn-primary" class="mr-3" title="Save Transaction" data-toggle="tooltip">Save</button>';
-							echo "<button class='btn_edit btn btn-success' class='mr-3' title='Edit Transaction'  data-bs-toggle='modal' data-bs-target='#editTransactionModal' data-id='" . $row['id'] . "' data-name='" . $row['fname'] . "'>Edit</button>";
+							echo "<button class='btn_edit btn btn-success' class='mr-3' title='Edit Transaction'  data-bs-toggle='modal' data-bs-target='#editTransactionModal' data-id='' data-name='" . $row['fname'] . "'>Edit</button>";
 							
 							// echo '<button class="edit" data-bs-toggle="modal" data-bs-target="#editTransactionModal">
 									// <i class="material-icons update" data-toggle="tooltip" 
