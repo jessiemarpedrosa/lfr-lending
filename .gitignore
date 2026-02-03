@@ -15,3 +15,6 @@ Thumbs.db
 .idea/
 *.sublime-project
 *.sublime-workspace
+
+# Database configuration (contains environment-specific credentials)
+includes/db-config.php
