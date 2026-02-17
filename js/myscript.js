@@ -1,16 +1,20 @@
 (function($){
-	
+
 	/* --------------------------------------------
 	** Declare Variables and Constants
-	* --------------------------------------------- */ 
+	* --------------------------------------------- */
 
-	const slideOutPanel = $('#slide-out-panel').SlideOutPanel({
-		enableEscapeKey: true,
-		closeBtnSize: '18px',
-		width: '50vw',
-		screenZindex: '9998',
-	});
- 
+	// Initialize SlideOutPanel only if the element exists
+	var slideOutPanel = null;
+	if ($('#slide-out-panel').length > 0) {
+		slideOutPanel = $('#slide-out-panel').SlideOutPanel({
+			enableEscapeKey: true,
+			closeBtnSize: '18px',
+			width: '50vw',
+			screenZindex: '9998',
+		});
+	}
+
 
 	// Get Account name, and set it to the dropdown as Selected value
 	var account = $('.searched_account').text();
@@ -41,9 +45,16 @@
 	
 	$('.filterActions__loanNo input[name="loan_no"]').val( $('.searched_loan_no').text() );
 	$('.filterActions__custNo input[name="cust_no"]').val( $('.searched_cust_no').text() );
-	
-	
-	$('body.page-daily-transactions #transaction_date').val(new Date().toJSON().slice(0,10));
+
+
+	// Set transaction date - check if there's a saved value first, otherwise use today's date
+	var savedTransDate = $('#trans_date_hidden').val();
+	if (savedTransDate && savedTransDate !== '') {
+		$('body.page-daily-transactions #transaction_date').val(savedTransDate);
+	} else {
+		$('body.page-daily-transactions #transaction_date').val(new Date().toJSON().slice(0,10));
+		$('#trans_date_hidden').val(new Date().toJSON().slice(0,10));
+	}
 	
 	if ( $.trim(delinqStartDate) == '' )
 		$('#delinq_start_date').val( $('span.delinq_start_date').text() );
@@ -52,9 +63,25 @@
 		$('#delinq_end_date').val( $('span.delinq_end_date').text() );
 	
 	/* --------------------------------------------
+	** Sync transaction date with hidden field
+	* --------------------------------------------- */
+	$(document).on('change', '#transaction_date', function(){
+		$('#trans_date_hidden').val($(this).val());
+	});
+
+	/* --------------------------------------------
+	** On form submit, sync the transaction date with hidden field
+	* --------------------------------------------- */
+	$(document).on('submit', '.filterActions form', function(){
+		$('#trans_date_hidden').val($('#transaction_date').val());
+	});
+
+	/* --------------------------------------------
 	** On Change of Account, trigger a click on the Filter button
-	* --------------------------------------------- */ 
+	* --------------------------------------------- */
 	$(document).on('change', '.filterActions__account', function(){
+		// Make sure hidden date field is synced before submitting
+		$('#trans_date_hidden').val($('#transaction_date').val());
 		$(".filterActions__btn input[name='filter']").trigger('click');
 	});
 	
@@ -357,12 +384,14 @@
 	** Loan Details List - Open Slide Out Panel and show all transactions
 	*/
 	$(document).on('click', '.btn_view_payments', function() {
-	
+
 		$('.loanDetails_main > table > tbody').html('');
 		$('.message_box').html('');
-		
-		slideOutPanel.open();
-		
+
+		if (slideOutPanel) {
+			slideOutPanel.open();
+		}
+
 		var loan_no = $(this).attr('data-loan_no');
 		$('.slidePanel_loanNo').text(loan_no);
 		
@@ -376,50 +405,64 @@
 				},
 				type: "POST",
 				dataType: 'json',
-				url: "/wp-content/themes/lfr-lending/includes/api/read_transactions.php",                         
-				success: function(response){    
-					// console.log( response[0] );
-					if (response){
-						var i = 0, rowData='';					
+				url: "/wp-content/themes/lfr-lending/includes/api/read_transactions.php",
+				success: function(response){
+					console.log('Response:', response);
+
+					// Check if response has an error
+					if (response && response.error) {
+						$('.message_box').html("<br>Error: " + response.error);
+						console.error('API Error:', response.error);
+						return;
+					}
+
+					if (response && response.length > 0){
+						var i = 0, rowData='';
 						var totAmtPerLoan = 0;
-		
+
 						while (i < response.length) {
 							var transDate = response[i].transaction_date;
 							var desc1 = response[i].description_1;
 							var desc2 = response[i].description_2;
 							var paidRemark = response[i].paid;
 							var amtReceived = response[i].amt_received;
-							
+
 							totAmtPerLoan += parseInt(amtReceived);
-							
+
 							rowData += '<tr><td>' + transDate + '</td><td>' + desc1 + '</td><td>' + desc2 + '</td><td>' + paidRemark + '</td><td>' + amtReceived + '</tr>';
-							
+
 							i++;
 						}
-						
+
 						$('.loanDetails_main > table > tbody').html(rowData);
-						
+
 						// Add Total Amount per Loan Detail Slide Out Panel
 						$('.loanDetails_main .loanDetails_totalAmount').empty();
 						$('.loanDetails_main').append('<span class="loanDetails_totalAmount">Total: ' + totAmtPerLoan.toLocaleString("en") + '</span>');
 					}
 					else {
 						$('.message_box').html("<br>No payments found or it may have been deleted.");
+						console.log('No transactions found for loan:', loan_no);
 					}
-					
+
 					// Reset values for Amt Received and Paid Remarks for those who are not saved/edited
 					$('.filterResults tr').each(function(){
 						if ( !$(this).hasClass('saved') ){
 							// console.log( $(this).attr('data-loan_no') );
 							var tempAmtRcvd = $(this).find('#amt_received').attr('placeholder');
 							var tempLoanNo = $(this).attr('data-loan_no');
-							
+
 							$(this).find('#amt_received').val(tempAmtRcvd);
-							$('tr.' + tempLoanNo + ' input#PaidTrue_' + tempLoanNo ).prop('checked', true).change(); 
+							$('tr.' + tempLoanNo + ' input#PaidTrue_' + tempLoanNo ).prop('checked', true).change();
 						}
 					});
+				},
+				error: function(xhr, status, error) {
+					console.error('AJAX Error:', status, error);
+					console.error('Response:', xhr.responseText);
+					$('.message_box').html("<br>Error loading payments: " + error);
 				}
-			  
+
 			});
 		}
 	});
@@ -429,12 +472,14 @@
 	** Delinquent Customers - Open Slide Out Panel and show all transactions
 	*/
 	$(document).on('click', '.btn_view_delinqCust', function() {
-	
+
 		$('.loanDetails_main > table > tbody').html('');
 		$('.message_box').html('');
-		
-		slideOutPanel.open();
-		
+
+		if (slideOutPanel) {
+			slideOutPanel.open();
+		}
+
 		var loan_no = $(this).attr('data-loan_no');
 		$('.slidePanel_loanNo').text(loan_no);
 		

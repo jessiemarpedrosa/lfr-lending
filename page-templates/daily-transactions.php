@@ -50,10 +50,10 @@ $account = $_POST['account'];
 			<form class="d-flex m-0" action="#" method="post">
 				<select class="filterActions__account" type="text" name="account">
 					<option value="" selected disabled hidden>Select an Account/Collector</option>
-					<?php 
+					<?php
 					while($row = mysqli_fetch_array($result)){
-					echo "<option value='" . $row['account'] . "'>" . $row['account'] . "</option>"; 
-					} 
+					echo "<option value='" . $row['account'] . "'>" . $row['account'] . "</option>";
+					}
 					?>
 				</select>
 				<div class="filterActions__loanNo">
@@ -62,6 +62,7 @@ $account = $_POST['account'];
 				<div class="filterActions__custNo">
 					<input style="width: 120px;" type="text" placeholder="Customer No." value="" name="cust_no">
 				</div>
+				<input type="hidden" name="trans_date" id="trans_date_hidden" value="<?php echo isset($_POST['trans_date']) ? $_POST['trans_date'] : ''; ?>">
 				<div class="filterActions__btn">
 					<input type="submit" value="Filter" name="filter">
 					<input class="reset" type="reset" value="Reset">
