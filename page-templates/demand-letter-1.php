@@ -189,17 +189,17 @@ if(isset($_POST['filter'])){
                     if ($loan_end_date && $current_date > $loan_end_date) {
                         $days_overdue = ($current_date - $loan_end_date) / (60*60*24);
                         $months_overdue = $days_overdue / 30; // Convert days to months
-                        $penalty = $outstanding * 0.02 * $months_overdue;
+                        $penalty = round($outstanding * 0.02 * $months_overdue, 0);
                     } else {
                         $penalty = 0;
                     }
 
-                    $total_amount_due = $outstanding + $penalty;
+                    $total_amount_due = round($outstanding + $penalty, 0);
                     ?>
-                    <p class="text-indent">This has reference to your Promissory Note for **** <span class="totalLoanAmtWords value text-uppercase" data-value="<?= $totalWithInterest ?>"></span> **** (₱<span class="totLoanAmt value"><?php echo number_format($totalWithInterest, 2, '.', ',') ?></span>)
+                    <p class="text-indent">This has reference to your Promissory Note for **** <span class="totalLoanAmtWords value text-uppercase" data-value="<?= $totalWithInterest ?>"></span> **** (₱<span class="totLoanAmt value"><?php echo number_format($totalWithInterest, 0, '.', ',') ?></span>)
                     dated <?= $loanDateFormatted ?> executed in favor of <span class="fw-bold">LAND OF FIVE RIVER LENDING, INC.</span></p>
 
-                    <p class="text-indent">The amount of ₱ <span class="totLoanAmt value"><?php echo number_format($total_amount_due, 2, '.', ',') ?></span> is inclusive of past due interest
+                    <p class="text-indent">The amount of ₱ <span class="totLoanAmt value"><?php echo number_format($total_amount_due, 0, '.', ',') ?></span> is inclusive of past due interest
                     and penalties of based on the above Promissory Note, remains unpaid.</p>
                     
                     <p class="text-indent">If the present conditions prevent you from making a payment now, please see us and afford us the opportunity of discussing the matter with you.
@@ -216,7 +216,7 @@ if(isset($_POST['filter'])){
                         </div>
                     </div>
                     
-                    <p>Outsanding Balance : <span class="fw-bold">₱ <?php echo number_format($total_amount_due, 2, '.', ',') ?></span></p>
+                    <p>Outsanding Balance : <span class="fw-bold">₱ <?php echo number_format($total_amount_due, 0, '.', ',') ?></span></p>
                     
                     <p>If payment has been made, please disregard this notice.<br>
                     Cc: Legal Department</p>

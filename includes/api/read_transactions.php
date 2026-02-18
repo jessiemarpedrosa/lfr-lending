@@ -10,6 +10,9 @@ header('Content-Type: application/json');
 ob_start();
 
 try {
+    // Load WordPress to access DB constants
+    require_once(__DIR__ . '/../../../../../wp-load.php');
+
     include __DIR__ . '/../db-config.php';
 
     $transDate = isset($_REQUEST['transDate']) ? $_REQUEST['transDate'] : null;

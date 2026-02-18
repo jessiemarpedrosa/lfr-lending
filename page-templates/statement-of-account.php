@@ -174,17 +174,20 @@ if(isset($_POST['filter'])){
 					// Calculate interest amount (Capital × Annual Rate / 100)
 					$interest_amount = $row['totalloanamt'] * ($row['loaninterestrate'] / 100);
 
-					// Calculate penalty (2% per month from last payment date to today)
+					// Calculate penalty (2% per month AFTER loan term ends)
 					$penalty_amount = 0;
 					$months_elapsed = 0;
-					if ($last_payment_date) {
-						$last_payment_datetime = new DateTime($last_payment_date);
-						$today = new DateTime();
-						$interval = $last_payment_datetime->diff($today);
-						$days_elapsed = $interval->days;
-						$months_elapsed = $days_elapsed / 30;
+
+					// Calculate loan end date (loan_date + duration in days)
+					$loan_end_date = strtotime($row['loan_date'] . ' + ' . intval($row['durationofloan']) . ' days');
+					$current_date = time();
+
+					// Only apply penalty if loan term has ended
+					if ($loan_end_date && $current_date > $loan_end_date) {
+						$days_overdue = ($current_date - $loan_end_date) / (60*60*24);
+						$months_elapsed = $days_overdue / 30; // Convert days to months
 						$penalty_rate = 2; // 2% per month
-						$penalty_amount = (($row['totalloanamt'] + $interest_amount) * ($penalty_rate / 100)) * $months_elapsed;
+						$penalty_amount = round((($row['totalloanamt'] + $interest_amount) * ($penalty_rate / 100)) * $months_elapsed, 0);
 					}
 
 					// Calculate total with interest and penalty
@@ -313,7 +316,7 @@ if(isset($_POST['filter'])){
                                         <span class="description">- Interest for (<?= $duration_months; ?>) months</span>
                                     </div>
                                     <div class="breakdown-item">
-                                        <span class="amount">+ ₱ <?= number_format($penalty_amount, 2, '.', ','); ?></span>
+                                        <span class="amount">+ ₱ <?= number_format($penalty_amount, 0, '.', ','); ?></span>
                                         <span class="description">- Penalty (2% per month)<?php if ($months_elapsed > 0) { echo ' - ' . number_format($months_elapsed, 1) . ' mos unpaid'; } ?></span>
                                     </div>
                                     <div class="breakdown-item subtotal">
