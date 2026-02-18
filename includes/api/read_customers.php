@@ -1,6 +1,9 @@
 <?php
 
-error_reporting (E_ALL ^ E_NOTICE); 
+error_reporting (E_ALL ^ E_NOTICE);
+
+// Load WordPress to access DB constants
+require_once(__DIR__ . '/../../../../../wp-load.php');
 
 include __DIR__ . '/../db-config.php';
 

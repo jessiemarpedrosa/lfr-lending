@@ -34,13 +34,17 @@ try {
             throw new Exception('Query failed: ' . mysqli_error($conn));
         }
     }
-    else {
+    elseif (isset($transDate) && !empty($transDate) && isset($account) && !empty($account)) {
         $sql = "SELECT * FROM lfr_transactions WHERE transaction_date = '" . mysqli_real_escape_string($conn, $transDate) . "' AND account = '" . mysqli_real_escape_string($conn, $account) . "'";
         $result = mysqli_query($conn, $sql);
 
         if (!$result) {
             throw new Exception('Query failed: ' . mysqli_error($conn));
         }
+    }
+    else {
+        // No valid search criteria provided
+        $result = false;
     }
 
     while($row = $result->fetch_assoc()) {

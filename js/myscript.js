@@ -123,6 +123,8 @@
 			
 			// If Amt Received is not empty, POST data via AJAX, and save to DB
 			if( amt_received && amt_received!="" ){
+				console.log('Saving transaction for loan:', loanNo);
+				console.log('Account:', account, 'Amt:', amt_received, 'Date:', transDate);
 				$.ajax({
 					url: "/wp-content/themes/lfr-lending/includes/api/save_transaction.php",
 					type: "POST",
@@ -145,17 +147,23 @@
 					},
 					cache: false,
 					success: function(data){
+						console.log('Save response:', data);
 						if(data.statusCode==200){
 							$('.' + loanNo).find('td .btn_save').attr( "disabled", "disabled" );
 							$('.' + loanNo).addClass('saved');
 							$('.' + loanNo).attr('data-id', data.last_id);
-							
+
 							console.log("Transaction row saved for " + loanNo);
 						}
 						else if(data.statusCode==201){
 							alert("Error occured !");
 						}
-										
+
+					},
+					error: function(xhr, status, error) {
+						console.error('AJAX Error:', status, error);
+						console.error('Response:', xhr.responseText);
+						alert('Error saving transaction: ' + error + '\nCheck console for details.');
 					}
 				});
 			}
