@@ -120,10 +120,21 @@ if(isset($_POST['filter'])){
 		$queryCustNo = " WHERE loans.cust_no LIKE '%" . $cust_no . "%' ";	
 	}
 	
-	if ( $d_start_date != '' && $d_end_date != ''){	
-		$sql_get_payments = "SELECT * FROM lfr_transactions 
-		WHERE (transaction_date BETWEEN '" . $d_start_date . "' AND '" . $d_end_date . "') 
-		AND account = '" . $sel_account . "' ORDER BY transaction_date";
+	// Pre-fetch payment counts per loan in a single query instead of querying inside the loop
+	$paymentCounts = [];
+	if ( $d_start_date != '' && $d_end_date != '' ) {
+		$sql_get_payment_counts = "SELECT loan_no, COUNT(*) AS payment_count
+		FROM lfr_transactions
+		WHERE account = '" . $sel_account . "'
+		AND transaction_date BETWEEN '" . $d_start_date . "' AND '" . $d_end_date . "'
+		GROUP BY loan_no";
+
+		if ( $res_pmts = mysqli_query($conn, $sql_get_payment_counts) ) {
+			while ( $pmt_row = mysqli_fetch_assoc($res_pmts) ) {
+				$paymentCounts[ $pmt_row['loan_no'] ] = (int) $pmt_row['payment_count'];
+			}
+			mysqli_free_result($res_pmts);
+		}
 	}
 
 	/*
@@ -134,10 +145,12 @@ if(isset($_POST['filter'])){
 	// ON cust.account = loans.account " . $queryAccount . $queryLoanNo . $queryCustNo .
 	// " AND loans.status = 'ACTIVE' GROUP BY loans.loan_no ORDER BY loans.route_no";
 	
-	$sql_get_loans = "SELECT DISTINCT loans.loan_no, loans.account, loans.balance, loans.cust_no, cust.fname, cust.lname, cust.bname, cust.wcell, cust.waddress1, loans.loan_date, loans.dailyrate, loans.totalloanamt, loans.balance, loans.id
-	FROM lfr_loans loans INNER JOIN lfr_customers cust " . $queryAccount . $queryLoanNo . $queryCustNo .
-	" AND loans.status = 'ACTIVE' " .
-	" GROUP BY loans.loan_no ORDER BY loans.route_no";
+	$sql_get_loans = "SELECT DISTINCT loans.loan_no, loans.account, loans.route_no, loans.cust_no, cust.fname, cust.lname, cust.bname, cust.wcell, cust.waddress1, loans.loan_date, loans.dailyrate, loans.totalloanamt, loans.balance, loans.id
+	FROM lfr_loans loans INNER JOIN lfr_customers cust
+	ON cust.custnum = loans.cust_no
+	WHERE loans.account = '" . $sel_account . "'
+	AND loans.status = 'Active'
+	GROUP BY loans.loan_no ORDER BY loans.route_no";
 	
 	/*
 	**	Query Transactions Table for all saved Transactions of specific Account
@@ -222,24 +235,9 @@ if(isset($_POST['filter'])){
 					$desc1 = ($row['balance'] <= 0) ? 'LOAN PAYMENT' : 'UNPAID LOAN';
 					
 					$loanNo = $row['loan_no'];
-					$pmtCtr = 0;
+					$pmtCtr = isset($paymentCounts[$loanNo]) ? $paymentCounts[$loanNo] : 0;
 					$delinqCust = 'NO';
 					$delinqClass = '';
-					
-					// Loop through all transactions made from start to end date provided on the filter
-					if($result2 = mysqli_query($conn, $sql_get_payments)){
-						$num_rows = mysqli_num_rows($result2);
-						// echo "There are " . $num_rows . " payments from the date provided";
-						
-						while($row2 = mysqli_fetch_array($result2)){
-							
-							$transDate = $row2['transaction_date'];
-							
-							if ($loanNo == $row2['loan_no'])
-								$pmtCtr++;
-							
-						}
-					}
 					
 					if ( ($totalDaysCtr - $pmtCtr) >= $delinqBasisNo ){
 						$delinqCust = 'YES';

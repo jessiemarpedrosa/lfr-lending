@@ -318,6 +318,12 @@ tr.saved {
 #main-nav a.dropdown-item:active{
 	background: #e9ecef;
 }
+
+/* Show dropdown on hover */
+#primary-menu .dropdown:hover > .dropdown-menu {
+	display: block;
+	margin-top: 0;
+}
 .wpDataTablesWrapper table.wpDataTable tr.selected td {
 	background: #009b2178 !important;
 }
