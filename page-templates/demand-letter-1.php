@@ -196,6 +196,7 @@ if(isset($_POST['filter'])){
 
                     $total_amount_due = round($outstanding + $penalty, 0);
                     ?>
+					
                     <p class="text-indent">This has reference to your Promissory Note for **** <span class="totalLoanAmtWords value text-uppercase" data-value="<?= $totalWithInterest ?>"></span> **** (₱<span class="totLoanAmt value"><?php echo number_format($totalWithInterest, 0, '.', ',') ?></span>)
                     dated <?= $loanDateFormatted ?> executed in favor of <span class="fw-bold">LAND OF FIVE RIVER LENDING, INC.</span></p>
 
