@@ -350,6 +350,7 @@ jQuery(function($){
 	var ctx = canvas.getContext('2d', { willReadFrequently: true })
 
 	let lfrLogo = document.getElementById("lfr_logo");
+	let lfrCustPhoto = document.getElementById("lfrCustPhoto");
 	
 	// Prepare and Create table with rows for the Back Part of the Loan Card
 	var number_of_rows = 25;
@@ -390,13 +391,17 @@ jQuery(function($){
 		ctx.fillText("LFR Lending", 1150 + moveRight, 50); // Main Header , Format (Value, X pos, Y pos)
 
 		
-		ctx.drawImage(lfrLogo, 1220 + moveRight,75);  // LFR Logo - 120px
-		
+		if (lfrLogo && lfrLogo.complete && lfrLogo.naturalWidth !== 0) {
+			ctx.drawImage(lfrLogo, 1220 + moveRight, 75);  // LFR Logo - 120px
+		}
+
 		ctx.font = "20px sans-serif";
 		ctx.fillText("Customer Number: " + custNo, 1165 + moveRight, 225);
 		ctx.fillText("Loan Number: " + loanNo, 1185 + moveRight, 255);
-		
-		ctx.drawImage(lfrCustPhoto, 1160 + moveRight, 275, 250, 250); // Customer Photo - 180px
+
+		if (lfrCustPhoto && lfrCustPhoto.complete && lfrCustPhoto.naturalWidth !== 0) {
+			ctx.drawImage(lfrCustPhoto, 1160 + moveRight, 275, 250, 250); // Customer Photo - 180px
+		}
 
 		ctx.fillStyle = '#000';
 		ctx.font = '30px sans-serif';
