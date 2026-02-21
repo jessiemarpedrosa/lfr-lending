@@ -184,7 +184,7 @@ if(isset($_POST['filter'])){
                     }
 
                     // Calculate outstanding balance (loan + interest - payments)
-                    $outstanding = max(0, $totalWithInterest - $total_paid);
+                    $outstanding = max(0, $totalWithInterest - $total_paid);  
 
                     // Calculate overdue penalty (2% per month after loan term ends)
                     $loan_end_date = strtotime($row['loan_date'] . ' + ' . intval($row['durationofloan']) . ' days');
