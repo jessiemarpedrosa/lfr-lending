@@ -20,5 +20,13 @@ Custom coded features/pages are:
 - daily-transactions.php - Reports for daily transactions and have the ability to print in PDF
 
 
+## Demand Letters
+- demand-letter-1.php - Generate and print the 1st Demand Letter for a specific loan
+- demand-letter-2.php - Generate and print the 2nd Demand Letter for a specific loan
+- Both letters calculate outstanding balance including overdue penalties
+- Print events are tracked with a timestamp saved to the `lfr_loans` table (`tracked_dl1`, `tracked_dl2`)
+- A warning is shown if a demand letter has already been printed, including the date it was issued
+
+
 ## Other Info
 - all scripts are found in js/myscript.js

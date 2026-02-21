@@ -77,3 +77,37 @@ function add_slug_body_class( $classes ) {
 	return $classes;
 }
 add_filter( 'body_class', 'add_slug_body_class' );
+
+// Track Demand Letter 1 Print
+add_action('wp_ajax_track_dl1_print', 'track_dl1_print');
+add_action('wp_ajax_nopriv_track_dl1_print', 'track_dl1_print');
+
+function track_dl1_print() {
+	include get_stylesheet_directory() . '/includes/db-config.php';
+	$loan_id = intval($_POST['loan_id']);
+	if ($loan_id > 0) {
+		$sql = "UPDATE lfr_loans SET tracked_dl1 = NOW() WHERE id = $loan_id";
+		mysqli_query($conn, $sql);
+		mysqli_close($conn);
+		wp_send_json_success();
+	} else {
+		wp_send_json_error('Invalid loan ID');
+	}
+}
+
+// Track Demand Letter 2 Print
+add_action('wp_ajax_track_dl2_print', 'track_dl2_print');
+add_action('wp_ajax_nopriv_track_dl2_print', 'track_dl2_print');
+
+function track_dl2_print() {
+	include get_stylesheet_directory() . '/includes/db-config.php';
+	$loan_id = intval($_POST['loan_id']);
+	if ($loan_id > 0) {
+		$sql = "UPDATE lfr_loans SET tracked_dl2 = NOW() WHERE id = $loan_id";
+		mysqli_query($conn, $sql);
+		mysqli_close($conn);
+		wp_send_json_success();
+	} else {
+		wp_send_json_error('Invalid loan ID');
+	}
+}

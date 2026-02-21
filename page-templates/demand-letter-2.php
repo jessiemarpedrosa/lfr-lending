@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: Demand Letter 1
+ * Template Name: Demand Letter 2
  * Template Post Type: page, post
  */
 
@@ -95,7 +95,7 @@ if(isset($_POST['filter'])){
 	**	Query all Loans based on the values inputted on the fields above
 	*/
 	$sql_get_loans = "SELECT DISTINCT loans.loan_no, loans.account, loans.route_no, loans.cust_no, cust.fname, cust.lname, cust.bname, cust.waddress1, loans.loan_date, loans.dailyrate,
-	loans.totalloanamt, loans.balance, loans.id, loans.status, loans.durationofloan, loans.tlapayback, loans.loaninterestrate, loans.tracked_dl1
+	loans.totalloanamt, loans.balance, loans.id, loans.status, loans.durationofloan, loans.tlapayback, loans.loaninterestrate, loans.tracked_dl1, loans.tracked_dl2
 	FROM lfr_loans loans INNER JOIN lfr_customers cust
 	ON cust.custnum = loans.cust_no " . $queryLoanNo . $queryCustNo .
 	" GROUP BY loans.loan_no ORDER BY loans.status, loans.loan_date DESC";
@@ -105,7 +105,7 @@ if(isset($_POST['filter'])){
 		$num_rows = mysqli_num_rows($result);
 	
 		echo '<div class="infoMsg">
-			<p class="mb-0">Loan Number <span class="searched_loan_no text-bold">' . $loan_no . '</span> - '  . $num_rows . ' record found for this search</p>
+            <p class="mb-0">Loan Number <span class="searched_loan_no text-bold">' . $loan_no . '</span> - '  . $num_rows . ' record found for this search</p>
 			<p style="margin:10px 0 0;" class="infoMsg__transDate"></p>
 			</div>';
 
@@ -136,11 +136,11 @@ if(isset($_POST['filter'])){
 					
 				?>
 		
-        		<?php if (!empty($row['tracked_dl1'])): ?>
-                <div class="alert alert-warning mb-4">NOTE: You already printed 1st Demand Letter for this Loan on <?= date('F d, Y \a\t h:i A', strtotime($row['tracked_dl1'])) ?>.</div>
+        		<?php if (!empty($row['tracked_dl2'])): ?>
+                <div class="alert alert-warning mb-4">NOTE: You already printed 2nd Demand Letter for this Loan on <?= date('F d, Y \a\t h:i A', strtotime($row['tracked_dl2'])) ?>.</div>
                 <?php endif; ?>
 
-        		<!-- 1ST DEMAND LETTER Content -->
+        		<!-- 2ND DEMAND LETTER Content -->
                 <div id="promi_note" class="promi_content" data-loan-id="<?= $row['id'] ?>">
                     <div class="head mb-4">
                         <img style="height: 80px;" src="https://lfrlending.com/wp-content/uploads/2023/06/site-logo-120.png" />
@@ -151,7 +151,7 @@ if(isset($_POST['filter'])){
                         </div>
                     </div>
                     
-                    <h4 class="text-center mb-3">1ST DEMAND LETTER</h3>
+                    <h4 class="text-center mb-3">2ND DEMAND LETTER</h3>
                     
                     <?php 
                     $currentDateTime = new DateTime('now');
@@ -201,16 +201,13 @@ if(isset($_POST['filter'])){
                     $total_amount_due = round($outstanding + $penalty, 0);
                     ?>
 					
-                    <p class="text-indent">This has reference to your Promissory Note for **** <span class="totalLoanAmtWords value text-uppercase" data-value="<?= $totalWithInterest ?>"></span> **** (₱<span class="totLoanAmt value"><?php echo number_format($totalWithInterest, 0, '.', ',') ?></span>)
-                    dated <?= $loanDateFormatted ?> executed in favor of <span class="fw-bold">LAND OF FIVE RIVER LENDING, INC.</span></p>
+                    <p class="text-indent">This letter shall serve as a second demand letter in connection with the <strong><?= !empty($row['tracked_dl1']) ? date('F d, Y', strtotime($row['tracked_dl1'])) : '' ?></strong> initial Demand Letter. 
+                    This is to inform you of your remaining balance of your principal obligation amounting to <strong>₱ <span class="totLoanAmt value"><?php echo number_format($total_amount_due, 0, '.', ',') ?></span></strong>, including the interest
+                    you obtain on <strong><?= $loanDateFormatted ?></strong> that are already immediately due and demandable. The debt remains outsanding  because the first written demand sent to you went unheeded.</p>
 
-                    <p class="text-indent">The amount of ₱ <span class="totLoanAmt value"><?php echo number_format($total_amount_due, 0, '.', ',') ?></span> is inclusive of past due interest
-                    and penalties of based on the above Promissory Note, remains unpaid.</p>
+                    <p class="text-indent">I hereby demand that payment of the full amount of the balance plus interest be paid within <strong>five(5) days</strong> from the date of this letter to the address listed below.</p>
                     
-                    <p class="text-indent">If the present conditions prevent you from making a payment now, please see us and afford us the opportunity of discussing the matter with you.
-                    For your manual interest, may we expect payment or hear from you within THREE (3) DAYS from receipt of this letter.</p>
-                    
-                    <p class="text-indent">Where sincere intentions exist, there is always a way to reach an agreement satisfactory to both parties.</p>
+                    <p class="text-indent">Please note that, should legal proceedings be initiated to secure the payment of the debt. This letter will be tendered in court as evidence that you ahve not attempted to resolve the issue.</p>
                     
                     <div class="d-flex justify-content-end mt-5 mb-5">
                         <div>Yours truly,<br>
@@ -221,10 +218,10 @@ if(isset($_POST['filter'])){
                         </div>
                     </div>
                     
-                    <p>Outsanding Balance : <span class="fw-bold">₱ <?php echo number_format($total_amount_due, 0, '.', ',') ?></span></p>
+                    <!-- <p>Outsanding Balance : <span class="fw-bold">₱ <?php echo number_format($total_amount_due, 0, '.', ',') ?></span></p>
                     
                     <p>If payment has been made, please disregard this notice.<br>
-                    Cc: Legal Department</p>
+                    Cc: Legal Department</p> -->
                     
                 </div>
         		
@@ -323,21 +320,21 @@ jQuery(function($){
 
 	$("#printPromi").click(function(){
 		var loanId = $("#promi_note").data('loan-id');
-		console.log('[DL1] ajaxurl:', ajaxurl);
-		console.log('[DL1] loan_id:', loanId);
+		console.log('[DL2] ajaxurl:', ajaxurl);
+		console.log('[DL2] loan_id:', loanId);
 		if (loanId) {
 			$.post(ajaxurl, {
-				action: 'track_dl1_print',
+				action: 'track_dl2_print',
 				loan_id: loanId
 			})
 			.done(function(response) {
-				console.log('[DL1] AJAX success:', response);
+				console.log('[DL2] AJAX success:', response);
 			})
 			.fail(function(xhr, status, error) {
-				console.error('[DL1] AJAX error:', status, error, xhr.responseText);
+				console.error('[DL2] AJAX error:', status, error, xhr.responseText);
 			});
 		} else {
-			console.warn('[DL1] No loan ID found on #promi_note');
+			console.warn('[DL2] No loan ID found on #promi_note');
 		}
     	$("#promi_note").printThis();
 	})
