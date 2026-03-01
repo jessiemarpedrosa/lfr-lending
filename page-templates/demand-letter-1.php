@@ -143,9 +143,9 @@ if(isset($_POST['filter'])){
         		<!-- 1ST DEMAND LETTER Content -->
                 <div id="promi_note" class="promi_content" data-loan-id="<?= $row['id'] ?>">
                     <div class="head mb-4">
-                        <img style="height: 80px;" src="https://lfrlending.com/wp-content/uploads/2023/06/site-logo-120.png" />
+                        <img style="height: 115px;" src="https://lfrlending.com/wp-content/uploads/2023/06/site-logo-120.png" />
                         <div class="title">
-                            <h3>Land of Five Rivers Lending, INC.</h3>
+                            <h3>Land of Five River Lending, INC.</h3>
                             <p>C. Ouano Street, Centro, Mandaue City<br>
                             Contact us @ 09772577244</p>
                         </div>
@@ -167,13 +167,11 @@ if(isset($_POST['filter'])){
                     <p>Dear Sir/Madam,</p>
                     
                     <?php
-                    // Calculate total loan amount with 20% interest
-                    $totalWithInterest = $row['totalloanamt'] * 1.20;
                     $loanDateFormatted = date('F d, Y', strtotime($row['loan_date']));
 
                     // Get total payments for this loan
                     $loan_no = $row['loan_no'];
-                    $sql_get_payments = "SELECT SUM(amount) as total_paid FROM lfr_transactions WHERE loan_no = '$loan_no'";
+                    $sql_get_payments = "SELECT SUM(amt_received) as total_paid FROM lfr_transactions WHERE loan_no = '$loan_no'";
                     $result_payments = mysqli_query($conn, $sql_get_payments);
 
                     if ($result_payments) {
@@ -183,22 +181,26 @@ if(isset($_POST['filter'])){
                         $total_paid = 0;
                     }
 
-                    // Calculate outstanding balance (loan + interest - payments)
-                    $outstanding = max(0, $totalWithInterest - $total_paid);
+                    // Calculate interest using actual loan interest rate from DB
+                    $interest_amount = $row['totalloanamt'] * ($row['loaninterestrate'] / 100);
+                    $totalWithInterest = $row['totalloanamt'] + $interest_amount;
 
-                    // Calculate overdue penalty (2% per month after loan term ends)
+                    // Outstanding balance without penalty (loan + interest - payments)
+                    $temp_outstanding_balance = $totalWithInterest - $total_paid;
+
+                    // Calculate penalty (2% per month × rounded months, based on temp outstanding balance)
+                    $penalty = 0;
+                    $months_elapsed = 0;
                     $loan_end_date = strtotime($row['loan_date'] . ' + ' . intval($row['durationofloan']) . ' days');
                     $current_date = time();
 
                     if ($loan_end_date && $current_date > $loan_end_date) {
                         $days_overdue = ($current_date - $loan_end_date) / (60*60*24);
-                        $months_overdue = $days_overdue / 30; // Convert days to months
-                        $penalty = round($outstanding * 0.02 * $months_overdue, 0);
-                    } else {
-                        $penalty = 0;
+                        $months_elapsed = round($days_overdue / 30);
+                        $penalty = round(($temp_outstanding_balance * 0.02) * $months_elapsed, 2);
                     }
 
-                    $total_amount_due = round($outstanding + $penalty, 0);
+                    $total_amount_due = round($temp_outstanding_balance + $penalty, 2);
                     ?>
 					
                     <p class="text-indent">This has reference to your Promissory Note for **** <span class="totalLoanAmtWords value text-uppercase" data-value="<?= $totalWithInterest ?>"></span> **** (₱<span class="totLoanAmt value"><?php echo number_format($totalWithInterest, 0, '.', ',') ?></span>)
@@ -483,7 +485,13 @@ function numToWords(n) {
   .promi_content{
       border: none !important;
       padding: 0 !important;
+      font-size: 14px !important;
   }
+  .promi_content h3 {
+      font-size: 24px !important;
+  }
+  .promi_content h4, .promi_content h5 { font-size: 16px !important; }
+  .promi_content h6 { font-size: 14px !important; }
 }
 
 span.value{
@@ -500,6 +508,12 @@ span.value{
 }
 .promi_content .head .title{
     text-align: center;
+}
+.promi_content .head .title h3 {
+    font-style: italic;
+    font-weight: 600;
+    font-family: 'Times New Roman', serif;
+    color: #154ec5;
 }
 .promi_content p.text-indent{
     text-indent: 40px;

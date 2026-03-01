@@ -156,7 +156,7 @@ if(isset($_POST['filter'])){
 					}
 
 					// Get all active loans for this customer
-					$sql_active_loans = "SELECT loan_no FROM lfr_loans WHERE cust_no = '" . mysqli_real_escape_string($conn, $cust_no) . "' AND status = 'Active' ORDER BY loan_no";
+					$sql_active_loans = "SELECT loan_no FROM lfr_loans WHERE cust_no = '" . mysqli_real_escape_string($conn, $cust_no) . "' AND status = 'Active' AND loan_no != '" . mysqli_real_escape_string($conn, $loan_no_query) . "' ORDER BY loan_no";
 					$result_active_loans = mysqli_query($conn, $sql_active_loans);
 					$active_loans = array();
 					if ($result_active_loans && mysqli_num_rows($result_active_loans) > 0) {
@@ -174,7 +174,10 @@ if(isset($_POST['filter'])){
 					// Calculate interest amount (Capital × Annual Rate / 100)
 					$interest_amount = $row['totalloanamt'] * ($row['loaninterestrate'] / 100);
 
-					// Calculate penalty (2% per month AFTER loan term ends)
+					// Outstanding balance without penalty
+					$temp_outstanding_balance = ($row['totalloanamt'] + $interest_amount) - $total_payments;
+
+					// Calculate penalty (2% per month × months unpaid, based on temp outstanding balance)
 					$penalty_amount = 0;
 					$months_elapsed = 0;
 
@@ -185,15 +188,15 @@ if(isset($_POST['filter'])){
 					// Only apply penalty if loan term has ended
 					if ($loan_end_date && $current_date > $loan_end_date) {
 						$days_overdue = ($current_date - $loan_end_date) / (60*60*24);
-						$months_elapsed = $days_overdue / 30; // Convert days to months
+						$months_elapsed = round($days_overdue / 30); // rounded to nearest whole month
 						$penalty_rate = 2; // 2% per month
-						$penalty_amount = round((($row['totalloanamt'] + $interest_amount) * ($penalty_rate / 100)) * $months_elapsed, 0);
+						$penalty_amount = round(($temp_outstanding_balance * ($penalty_rate / 100)) * $months_elapsed, 2);
 					}
 
 					// Calculate total with interest and penalty
 					$total_with_interest_penalty = $row['totalloanamt'] + $interest_amount + $penalty_amount;
 
-					// Calculate final outstanding balance
+					// Final outstanding balance including penalty
 					$final_outstanding_balance = $total_with_interest_penalty - $total_payments;
 
 				?>
@@ -201,9 +204,9 @@ if(isset($_POST['filter'])){
         		<!-- STATEMENT OF ACCOUNT Content -->		
                 <div id="promi_note" class="promi_content">
                     <div class="head mb-4">
-                        <img style="height: 80px;" src="https://lfrlending.com/wp-content/uploads/2023/06/site-logo-120.png" />
+                        <img style="height: 115px;" src="https://lfrlending.com/wp-content/uploads/2023/06/site-logo-120.png" />
                         <div class="title">
-                            <h3>Land of Five Rivers Lending, INC.</h3>
+                            <h3>Land of Five River Lending, INC.</h3>
                             <p>C. Ouano Street, Centro, Mandaue City<br>
                             Contact us @ 09772577244</p>
                         </div>
@@ -216,6 +219,10 @@ if(isset($_POST['filter'])){
                             <div class="row mb-3">
                                 <!-- Left Column -->
                                 <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <strong>Loan #:</strong>
+                                        <span class=""><?= $row['loan_no']; ?></span>
+                                    </div>
                                     <div class="mb-3">
                                         <strong>Name:</strong>
                                         <span class=""><?= $row['fname'] . ' ' . $row['lname']; ?></span>
@@ -237,7 +244,7 @@ if(isset($_POST['filter'])){
                                         <span class=""><?= $row['cust_no']; ?></span>
                                     </div>
                                     <div class="mb-3">
-                                        <strong>Active Loans:</strong>
+                                        <strong>Other Active Loans:</strong>
                                         <span class=""><?= $active_loans_display; ?></span>
                                     </div>
                                     <div class="mb-3">
@@ -246,7 +253,7 @@ if(isset($_POST['filter'])){
                                     </div>
                                     <div class="mb-3">
                                         <strong>Outstanding Balance:</strong>
-                                        <span class=" text-danger">₱ <?= number_format($row['balance'], 2, '.', ','); ?></span>
+                                        <span class=" text-danger">₱ <?= number_format($temp_outstanding_balance, 2, '.', ','); ?></span>
                                     </div>
                                 </div>
                             </div>
@@ -575,7 +582,15 @@ function numToWords(n) {
   .promi_content{
       border: none !important;
       padding: 0 !important;
+      font-size: 14px !important;
   }
+  .promi_content h3 { 
+	font-size: 24px !important; 
+}
+  .promi_content h4, .promi_content h5 { font-size: 16px !important; }
+  .promi_content h6 { font-size: 14px !important; }
+  .breakdown-item.total,
+  .breakdown-item.total .amount { font-size: 16px !important; }
   .filterActions {
       display: none !important;
   }
@@ -716,6 +731,12 @@ span.value{
 }
 .promi_content .head .title{
     text-align: center;
+}
+.promi_content .head .title h3 {
+    font-style: italic;
+    font-weight: 600;
+    font-family: times new roman;
+    color: #154ec5;
 }
 .promi_content p.text-indent{
     text-indent: 40px;
