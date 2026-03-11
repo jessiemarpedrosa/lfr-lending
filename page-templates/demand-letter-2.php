@@ -146,8 +146,8 @@ if(isset($_POST['filter'])){
                         <img style="height: 115px;" src="https://lfrlending.com/wp-content/uploads/2023/06/site-logo-120.png" />
                         <div class="title">
                             <h3>Land of Five River Lending, INC.</h3>
-                            <p>C. Ouano Street, Centro, Mandaue City<br>
-                            Contact us @ 09772577244</p>
+                            <p>2/F Annex Building. Kentredeler sq. A.C cortes Ave. Brgy. Ebabao Estancia, Mandaue City<br>
+                            Contact us @ 09772577244 | Tel. No. 0324333817</p>
                         </div>
                     </div>
                     
@@ -214,7 +214,7 @@ if(isset($_POST['filter'])){
                         <div>Yours truly,<br>
                         LAND OF FIVE RIVER LENDING<br>
                         <br><br>
-                        <p class="text-center"><span class="text-center fw-bold">RAMANDEEP SINGH</span><br>
+                        <p class="text-center"><span class="text-center fw-bold">JAY RYAN D. EMPEYNADO</span><br>
                         Manager</p>
                         </div>
                     </div>
