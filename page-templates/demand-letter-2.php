@@ -203,7 +203,7 @@ if(isset($_POST['filter'])){
                     ?>
 					
                     <p class="text-indent">This letter shall serve as a second demand letter in connection with the <strong><?= !empty($row['tracked_dl1']) ? date('F d, Y', strtotime($row['tracked_dl1'])) : '' ?></strong> initial Demand Letter. 
-                    This is to inform you of your remaining balance of your principal obligation amounting to <strong>₱ <span class="totLoanAmt value"><?php echo number_format($total_amount_due, 0, '.', ',') ?></span></strong>, including the interest
+                    This is to inform you of your remaining balance of your principal obligation amounting to <strong>₱ <span class="totLoanAmt value"><?php echo number_format($temp_outstanding_balance, 0, '.', ',') ?></span></strong>, including the interest
                     you obtain on <strong><?= $loanDateFormatted ?></strong> that are already immediately due and demandable. The debt remains outsanding  because the first written demand sent to you went unheeded.</p>
 
                     <p class="text-indent">I hereby demand that payment of the full amount of the balance plus interest be paid within <strong>five(5) days</strong> from the date of this letter to the address listed below.</p>
