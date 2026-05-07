@@ -509,8 +509,8 @@ jQuery(function($){
 		// LFR Contact Details
 		ctx.font = '20px sans-serif';
 		ctx.fillText('Email: lfr.lending@gmail.com', 1140 + moveRight, 610);
-		ctx.fillText('Tel No.: (032) 407 9397', 1170 + moveRight, 640);
-		ctx.fillText('Mobile: 0932-617-1314', 1170 + moveRight, 670);
+		ctx.fillText('Tel No.: (032) 344 3817', 1170 + moveRight, 640);
+		ctx.fillText('Mobile: 09772577244', 1170 + moveRight, 670);
 
 		// Customer Name
 		ctx.fillText('Name: ' + custName, 1060 + moveRight, 730);
